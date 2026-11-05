@@ -7,37 +7,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* ── 主視覺三色：樹蔭深綠 / 乾草沙色 / 邊坡草地橄欖綠 ── */
-    --forest: #2b632a;
-    --sand:   #b4a18b;
-    --olive:  #496800;
+    --bg-deep:   #f5f0e8;
+    --bg-paper:  rgba(255,252,245,0.92);
+    --bg-panel:  rgba(255,252,245,0.85);
+    --border-soft: rgba(160,120,60,0.15);
+    --border-mid:  rgba(160,120,60,0.30);
 
-    --bg-deep:   #f5f0e8;                    /* 最早的米色底（背景圖尚未放入時的預設） */
-    --bg-paper:  rgba(253,252,247,0.93);
-    --bg-panel:  rgba(253,252,247,0.88);
-    --border-soft: rgba(180,161,139,0.40);
-    --border-mid:  rgba(180,161,139,0.75);
-
-    --text-main:  #2a1f0e;                   /* 正文文字維持不變 */
-    --text-sub:   #5d5440;
-    --text-muted: #7f735e;
+    --text-main:  #2a1f0e;
+    --text-sub:   #6b5030;
+    --text-muted: #a08858;
 
     --col-k: #c0392b;   /* 黑尾：赤紅   */
     --col-t: #c8a000;   /* 月島：金黃   */
     --col-b: #8a8a8a;   /* 木兔：淺灰   */
     --col-a: #8e44ad;   /* 赤葦：紫霧   */
 
-    --accent: var(--forest);
-    --choice-bg:        rgba(43,99,42,0.05);
-    --choice-border:    rgba(43,99,42,0.28);
-    --choice-hover-bg:  rgba(43,99,42,0.11);
-    --choice-hover-bdr: rgba(43,99,42,0.60);
-
+    --accent: #c0392b;
+    --choice-bg:        rgba(80,50,20,0.05);
+    --choice-border:    rgba(80,50,20,0.20);
+    --choice-hover-bg:  rgba(80,50,20,0.10);
+    --choice-hover-bdr: rgba(80,50,20,0.45);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html { scroll-behavior: auto; }
   body {
     font-family: 'Noto Sans TC', sans-serif;
     background: var(--bg-deep);
@@ -46,30 +39,20 @@
     display: flex; flex-direction: column; align-items: center;
     overflow-x: hidden;
   }
-  body {
-    background: var(--bg-deep);
-  }
-  /* ── 背景圖（放在 HTML 同一個資料夾的 images/ 底下）──
-     橫式視窗用 *-landscape，直式（寬 ≤ 高）用 *-portrait。
-     白天／夜晚由章節決定（見 BG_NIGHT_CHAPTERS）；圖檔還沒放進去時，會顯示底下的米色。 */
-  :root {
-    --img-bg-day:   url("images/bg-day-landscape.jpg");
-    --img-bg-night: url("images/bg-night-landscape.jpg");
-  }
-  @media (max-aspect-ratio: 1/1) {
-    :root {
-      --img-bg-day:   url("images/bg-day-portrait.jpg");
-      --img-bg-night: url("images/bg-night-portrait.jpg");
-    }
-  }
-  #bg-day, #bg-night {
+  body::before {
+    content: '';
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background-size: cover; background-position: center; background-repeat: no-repeat;
-    transition: opacity 1.2s ease;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(160,120,60,0.06) 28px, rgba(160,120,60,0.06) 29px),
+      repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(160,120,60,0.03) 28px, rgba(160,120,60,0.03) 29px);
   }
-  #bg-day   { background-image: var(--img-bg-day);   opacity: 1; }
-  #bg-night { background-image: var(--img-bg-night); opacity: 0; }
-  body.time-night #bg-night { opacity: 1; }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 50% at 100% 0%, rgba(230,126,34,0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 0% 100%, rgba(192,57,43,0.08) 0%, transparent 60%);
+  }
 
   #app {
     position: relative; z-index: 1;
@@ -89,9 +72,9 @@
     display: flex; align-items: center; gap: 12px;
     justify-content: center; margin-bottom: 10px;
   }
-  .deco-line { flex:1; max-width:80px; height:2px; background:linear-gradient(90deg,transparent,var(--olive)); }
-  .deco-line.right { background:linear-gradient(90deg,var(--olive),transparent); }
-  .deco-ball { width:10px; height:10px; border-radius:0 100% 0 100%; background:var(--olive); transform:rotate(-20deg); box-shadow:0 0 8px rgba(73,104,0,0.45); }  /* 一片葉子 */
+  .deco-line { flex:1; max-width:80px; height:2px; background:linear-gradient(90deg,transparent,var(--accent)); }
+  .deco-line.right { background:linear-gradient(90deg,var(--accent),transparent); }
+  .deco-ball { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px rgba(192,57,43,0.5); }
   #game-title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 36px; letter-spacing: 6px;
@@ -104,7 +87,6 @@
     font-size: 14px; font-weight: 600;
     color: var(--accent); letter-spacing: 4px;
     padding: 5px 20px;
-    background: rgba(180,161,139,0.14);
     border: 1.5px solid var(--accent); border-radius: 2px;
     position: relative;
   }
@@ -123,12 +105,11 @@
     padding: 36px 44px;
     margin-bottom: 24px;
     position: relative; overflow: hidden;
-    box-shadow: 0 4px 26px rgba(43,99,42,0.10), inset 0 1px 0 rgba(255,255,255,0.85);
-    backdrop-filter: blur(2px);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
   }
   #story-area::before {
     content:''; position:absolute; top:0; left:0; bottom:0;
-    width:4px; background:linear-gradient(to bottom,var(--forest),var(--olive) 60%,transparent);
+    width:3px; background:linear-gradient(to bottom,var(--accent),transparent);
   }
   #scene-label {
     font-size:10px; letter-spacing:5px; text-transform:uppercase;
@@ -188,7 +169,7 @@
   /* 左側裝飾線，hover 才展開，統一深色不洩露角色 */
   .choice-btn::before {
     content:''; position:absolute; left:0; top:0; bottom:0;
-    width:3px; background: var(--olive);
+    width:3px; background: var(--text-sub);
     transform:scaleY(0); transition:transform 0.2s ease; transform-origin:center;
   }
   .choice-btn:hover::before { transform:scaleY(1); }
@@ -196,7 +177,7 @@
     background: var(--choice-hover-bg);
     border-color: var(--choice-hover-bdr);
     transform: translateX(5px);
-    box-shadow: 2px 4px 20px rgba(43,99,42,0.14);
+    box-shadow: 2px 4px 20px rgba(0,0,0,0.08);
   }
   .choice-btn:active { transform: translateX(2px) scale(0.99); }
   .choice-btn.clicked {
@@ -210,8 +191,8 @@
     width:26px; height:26px; flex-shrink:0; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     font-size:12px; font-weight:700; font-family:'Noto Sans TC',sans-serif;
-    background: rgba(43,99,42,0.10);
-    color: var(--forest);
+    background: rgba(80,50,20,0.08);
+    color: var(--text-sub);
     border: 1px solid var(--border-mid);
     transition: transform 0.2s ease;
   }
@@ -224,7 +205,7 @@
     border-radius: 4px;
     padding: 14px 24px;
     display: flex; align-items: center; justify-content: space-between;
-    box-shadow: 0 1px 10px rgba(43,99,42,0.08);
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
   }
   #status-game-title {
     font-family: 'Bebas Neue', sans-serif;
@@ -240,7 +221,7 @@
   }
   .save-dot {
     width:7px; height:7px; border-radius:50%;
-    background:#7cae2a; box-shadow:0 0 8px rgba(124,174,42,0.7);
+    background:#4caf50; box-shadow:0 0 8px rgba(76,175,80,0.7);
     animation:blink 2.5s ease-in-out infinite;
   }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
@@ -248,7 +229,7 @@
   /* ── 結局 ── */
   #ending-screen {
     display:none; position:fixed; inset:0; z-index:100;
-    background:radial-gradient(ellipse at 50% 100%, #1d3a1b 0%, #0d1a0c 70%);
+    background:#1a0f06;
     align-items:center; justify-content:center; flex-direction:column;
   }
   #ending-screen.show { display:flex; animation:ending-in 1.2s ease forwards; }
@@ -349,26 +330,34 @@
   /* ── 開始畫面 ── */
   #start-screen {
     position: fixed; inset: 0; z-index: 150;
-    /* 標題頁自己帶一張白天背景圖（不透明，才不會透出後面的遊戲畫面）；圖檔未放入時顯示米色 */
-    background: var(--img-bg-day) center / cover no-repeat, var(--bg-deep);
-    overflow-y: auto;
-    display: flex; align-items: safe center; justify-content: center;
+    background: var(--bg-deep);
+    display: flex; align-items: center; justify-content: center;
     flex-direction: column;
     transition: opacity 0.5s ease;
   }
-  .start-content { position: relative; }
-  /* 標題頁的隱形圓形開始按鈕：位置與大小由 JS 依背景圖座標算出（見 TITLE_BTN） */
-  #title-start-btn {
-    position: absolute; padding: 0; margin: 0; border: 0; border-radius: 50%;
-    background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent;
-  }
-  #title-start-btn:focus-visible { outline: 2px solid rgba(43,99,42,0.6); outline-offset: 2px; }
-  #start-screen.show-btn #title-start-btn { outline: 2px dashed #e53935; background: rgba(229,57,53,0.12); }
   #start-screen.hide { opacity: 0; pointer-events: none; }
 
   .start-content {
     text-align: center; padding: 40px 32px;
     max-width: 480px; width: 100%;
+  }
+  .start-deco {
+    display: flex; align-items: center; gap: 12px;
+    justify-content: center; margin-bottom: 14px;
+  }
+  .start-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px; letter-spacing: 6px;
+    color: var(--text-main); line-height: 1.1; margin-bottom: 6px;
+  }
+  .start-subtitle {
+    font-size: 11px; letter-spacing: 4px;
+    color: var(--text-muted); margin-bottom: 36px;
+  }
+  .start-title-jp {
+    font-family: 'Noto Serif TC', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+    font-size: 13px; letter-spacing: 4px; font-weight: 300;
+    color: var(--text-muted); opacity: 0.75; margin-top: 10px;
   }
   .start-notes {
     margin: 18px auto 30px; padding: 0 0 0 1.5em;
@@ -377,7 +366,7 @@
     color: var(--text-muted);
   }
   .start-save-info {
-    background: rgba(180,161,139,0.16);
+    background: rgba(160,120,60,0.08);
     border: 1px solid var(--border-mid);
     border-radius: 6px;
     padding: 14px 20px;
@@ -417,7 +406,7 @@
   }
   .start-btn:hover { background: var(--choice-hover-bg); border-color: var(--choice-hover-bdr); transform: translateX(4px); }
   .start-btn:hover::before { transform: scaleY(1); }
-  .start-btn.primary { border-color: rgba(43,99,42,0.55); color: var(--accent); background: rgba(43,99,42,0.08); }
+  .start-btn.primary { border-color: rgba(192,57,43,0.5); color: var(--accent); }
   .start-btn.danger {
     font-size: 13px; color: var(--text-muted);
     border-color: var(--border-soft);
@@ -425,19 +414,6 @@
   }
   .start-btn.danger::before { background: var(--text-muted); }
   .start-btn.danger:hover { color: var(--text-sub); }
-
-
-  .start-page-heading {
-    font-family: 'Noto Serif TC', serif; font-size: 18px; letter-spacing: 6px;
-    color: var(--text-main); margin-bottom: 8px;
-  }
-  .start-disclaimer {
-    margin: 0 auto 26px; max-width: 340px; text-align: left;
-    font-size: 11.5px; line-height: 1.8; letter-spacing: 0.5px;
-    color: var(--olive);
-  }
-  .start-disclaimer p { margin: 0 0 6px 0; padding-left: 1em; text-indent: -1em; }
-  .start-disclaimer p::before { content: '・'; }
 
   /* 確認對話框 */
   #confirm-dialog {
@@ -541,37 +517,28 @@
 </style>
 </head>
 <body>
-<div id="bg-day"></div>
-<div id="bg-night"></div>
 
 <!-- 開始畫面 -->
 <div id="start-screen">
-  <!-- 第一頁：標題頁。文字與插圖都已畫進背景圖，這裡只保留一顆「隱形」的圓形開始按鈕，
-       位置對應背景圖上的按鈕圖案（座標設定見 TITLE_BTN）。網址後面加 #showbtn 可顯示紅色虛線框來對位。 -->
-  <div class="start-page" id="start-page-1">
-    <button id="title-start-btn" type="button" aria-label="開始遊戲" onclick="showStartPage(2)"></button>
-  </div>
-
-  <!-- 第二頁：遊玩提醒 -->
-  <div class="start-content start-page" id="start-page-2" style="display:none">
-    <div class="start-page-heading">遊玩提醒</div>
+  <div class="start-content">
+    <div class="start-deco">
+      <div class="deco-line"></div><div class="deco-ball"></div><div class="deco-line right"></div>
+    </div>
+    <div class="start-title">那年夏天的<br>第三體育館</div>
+    <div class="start-title-jp">あの夏の第三体育館</div>
     <ol class="start-notes">
       <li>遊戲皆會自動存檔，下次可以從上次結束的地方繼續玩</li>
       <li>無法使用「上一頁」功能反悔選項，下好離手</li>
       <li>無法從指定的地方開始玩，但可以中途決定從頭開始</li>
     </ol>
-    <div class="start-disclaimer">
-      <p>此為基於古館春一老師著作《排球少年》世界觀的二創作品，預設玩家對故事及角色有一定了解，內文並沒有詳細的角色介紹。</p>
-      <p>創作包含大量個人對角色之解讀，如有OOC、解釋違，請見諒。</p>
-      <p>本遊戲創作內容皆無AI介入，故事大綱、文本內容、規則設計皆由作者一字一句親自完成，所有背景圖片、角色插畫皆由繪師一筆一畫親自完成。僅有「網頁程式撰寫」使用AI協助。</p>
-    </div>
     <div id="start-save-info" class="start-save-info" style="display:none">
       <div class="save-chapter" id="start-save-chapter"></div>
       <div class="save-time" id="start-save-time"></div>
     </div>
     <div class="start-btns">
-      <button class="start-btn primary" id="btn-start" onclick="startMain()">了解，開始遊戲吧！</button>
-      <button class="start-btn danger" id="btn-reset" style="display:none" onclick="askReset(true)">清除存檔，從頭開始</button>
+      <button class="start-btn primary" id="btn-continue" style="display:none" onclick="startContinue()">繼續遊戲</button>
+      <button class="start-btn" id="btn-new" onclick="startNew()">新遊戲</button>
+      <button class="start-btn danger" id="btn-reset" style="display:none" onclick="askReset()">重置存檔</button>
     </div>
   </div>
 </div>
@@ -688,47 +655,6 @@ const ENDINGS = {
 // ══════════════════════════════════════════════
 //  劇本
 // ══════════════════════════════════════════════
-// 第十三章的分數大小（扣分題 / 加分題），要調整整章權重只需改這兩個數字
-const CH13_PENALTY = 2;
-const CH13_BONUS   = 1;
-
-// ── 第十四章結算之後的去向 ──
-// 第十五章寫好後，把 CH15_ENTRY 改成 'ch15'；第十六章六個版本寫好後，章節 id 依 CH16_ROUTES 命名即可自動接上。
-const CH15_ENTRY = 'ending';   // TODO
-// 留下的一、二名（不論名次順序）→ 第十六章路線。key = 兩人 id 字母排序（K 黑尾、B 木兔、A 赤葦、T 月島）
-const CH16_ROUTES = {
-  BK: { id:'ch16_BK', name:'黑尾、木兔路線' },
-  AB: { id:'ch16_AB', name:'赤葦、木兔路線' },
-  BT: { id:'ch16_BT', name:'月島、木兔路線' },
-  AK: { id:'ch16_AK', name:'赤葦、黑尾路線' },
-  AT: { id:'ch16_AT', name:'赤葦、月島路線' },
-  KT: { id:'ch16_KT', name:'黑尾、月島路線' },
-};
-
-// ── 背景圖的白天／夜晚：列在這裡的章節用夜晚圖，其餘用白天圖 ──
-const BG_NIGHT_CHAPTERS = [6, 8, 10, 12, 14, 16];
-
-(function setupTimeOfDayBackground() {
-  const CN = { '一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9 };
-  function cnToNum(t) {
-    if (!t.includes('十')) return CN[t];
-    const [a, b] = t.split('十');
-    return (a ? CN[a] : 1) * 10 + (b ? CN[b] : 0);
-  }
-  function update() {
-    const el = document.getElementById('chapter-label');
-    const m = el && el.textContent.match(/第([一二三四五六七八九十]+)章/);
-    if (!m) return;
-    document.body.classList.toggle('time-night', BG_NIGHT_CHAPTERS.includes(cnToNum(m[1])));
-  }
-  window.addEventListener('DOMContentLoaded', () => {
-    const el = document.getElementById('chapter-label');
-    if (!el) return;
-    new MutationObserver(update).observe(el, { childList:true, characterData:true, subtree:true });
-    update();
-  });
-})();
-
 const CHAPTERS = [
 
   // ── 第一章 ──
@@ -756,19 +682,19 @@ const CHAPTERS = [
       {
         text: '「唔⋯⋯同年的話比較好相處吧。」',
         targets: [{ id:'A', val:2 }],
-        feedback: `真子學姊笑著說：「什麼啊，原來千璃泱喜歡這種男生！」\n\n「我也只是說說而已啦！」妳擺擺手，暗自期待明天和學姊口中「怪人」的相遇。`,
+        feedback: `真子學姊笑著說：「什麼啊，原來千璃泱喜歡這種男生！」\n「我也只是說說而已啦！」妳擺擺手，暗自期待明天和學姊口中「怪人」的相遇。`,
         next: 'ch2',
       },
       {
         text: '「嗯⋯⋯年下不錯啦⋯⋯我喜歡當大姊姊的感覺。」',
         targets: [{ id:'T', val:2 }],
-        feedback: `真子學姊笑著說：「什麼啊，原來千璃泱喜歡這種男生！」\n\n「我也只是說說而已啦！」妳擺擺手，暗自期待明天和學姊口中「怪人」的相遇。`,
+        feedback: `真子學姊笑著說：「什麼啊，原來千璃泱喜歡這種男生！」\n「我也只是說說而已啦！」妳擺擺手，暗自期待明天和學姊口中「怪人」的相遇。`,
         next: 'ch2',
       },
       {
         text: '「呃⋯⋯真要說的話，還是學長比較成熟穩重吧！」',
         targets: [{ id:'K', val:2 }, { id:'B', val:2 }],
-        feedback: `真子學姊笑著說：「什麼啊，原來千璃泱喜歡這種男生！」\n\n「我也只是說說而已啦！」妳擺擺手，暗自期待明天和學姊口中「怪人」的相遇。`,
+        feedback: `真子學姊笑著說：「什麼啊，原來千璃泱喜歡這種男生！」\n「我也只是說說而已啦！」妳擺擺手，暗自期待明天和學姊口中「怪人」的相遇。`,
         next: 'ch2',
       },
     ],
@@ -842,19 +768,19 @@ const CHAPTERS = [
       {
         text: '「我有看到喔，非常厲害！」',
         targets: [{ id:'B', val:2 }],
-        feedback: `木兔得意洋洋的手舞足蹈，「是吧是吧！」\n\n此時木兔被梟谷的其他隊友叫走，跑開前不忘對妳揮手。\n\n「晚點見！要記得繼續看我打球喔！」`,
+        feedback: `木兔得意洋洋的手舞足蹈，「是吧是吧！」\n\n此時木兔被梟谷的其他隊友叫走，跑開前不忘對妳揮手。\n「晚點見！要記得繼續看我打球喔！」`,
         next: 'ch4',
       },
       {
         text: '「嗯⋯⋯好像靠太近了。」',
         targets: [{ id:'B', val:1 }],
-        feedback: `「咦？太近了嗎？」木兔有些慌亂的倒退了五大步，大喊：「那這樣呢？」\n\n此時木兔被梟谷的其他隊友叫走，跑開前不忘對妳揮手。\n\n「晚點見！要記得繼續看我打球喔！」`,
+        feedback: `「咦？太近了嗎？」木兔有些慌亂的倒退了五大步，大喊：「那這樣呢？」\n\n此時木兔被梟谷的其他隊友叫走，跑開前不忘對妳揮手。\n「晚點見！要記得繼續看我打球喔！」`,
         next: 'ch4',
       },
       {
         text: '「也不是只有那一球才帥氣吧！」',
         targets: [{ id:'B', val:3 }],
-        feedback: `木兔一聽，興奮的原地跳上跳下，「嘿嘿嘿！我是王牌啊！」\n\n此時木兔被梟谷的其他隊友叫走，跑開前不忘對妳揮手。\n\n「晚點見！要記得繼續看我打球喔！」`,
+        feedback: `木兔一聽，興奮的原地跳上跳下，「嘿嘿嘿！我是王牌啊！」\n\n此時木兔被梟谷的其他隊友叫走，跑開前不忘對妳揮手。\n「晚點見！要記得繼續看我打球喔！」`,
         next: 'ch4',
       },
     ],
@@ -989,7 +915,7 @@ const CHAPTERS = [
 
 妳一間一間的探頭查看體育館，在第三體育館，訝異的看見裡頭的四人組合：音駒的黑尾、梟谷的木兔跟赤葦、還有剛才說要去洗澡睡覺的月島。
 
-（地上還有半昏迷的灰羽，妳並沒有馬上注意到。）
+（地上還有半昏迷的利耶夫，妳並沒有馬上注意到。）
 
 「千璃醬！」黑尾眼尖的發現妳，「如何？要來陪我們練扣球跟攔網嗎？」
 
@@ -2064,217 +1990,7 @@ const CHAPTERS = [
 啊，真希望時間可以再過慢一點。`,
     choices: [],
     type: 'epilogue',
-    next: 'ch13',
-  },
-
-  // ── 第十三章：女生宿舍 ──
-  // 兩題「填空＋同頁連續」：
-  //   第一題（扣分）選項文字會取代正文的「＿＿＿＿」；第二題（加分）自動隱藏第一題選到的人。
-  // 分數大小請改 CH13_PENALTY / CH13_BONUS（見檔案內 CH13 常數）。
-  {
-    id:'ch13', label:'第十三章　女生宿舍', scene:'第五天清晨・女生宿舍',
-    type: 'inline',
-    segments: [
-      {
-        text:
-`「欸——真的嗎？英里醬？」
-
-梟谷的經理雀田驚喜的高喊，生川的經理生之下馬上摀住臉要她小聲一點。
-
-「什麼什麼？」白福也過去湊熱鬧。
-
-這會兒才一大早，妳剛梳洗完畢，正在摺棉被，悄悄豎起耳朵聽她們在說什麼。
-
-另一邊烏野的經理也注意到騷動，谷地緊張的用膝蓋爬到她們身邊，「怎麼了怎麼了？生之下學姊？妳不舒服嗎？」
-
-一陣混亂之中，連清水、真子都圍了過去，妳自然也沒落單。
-
-經過幾天的朝夕相處，女生經理間已經相當親暱，連首次參加合宿的妳及兩名烏野經理，都和大家成為好友。
-
-「欸？欸？大家都圍過來了是怎麼回事？」生之下緊張的左看右看。
-
-「仁花醬妳說得沒錯。」雀田浮誇的說，「英里醬得了一種名為戀愛的病！」
-
-「哪有那麼誇張啦！」生之下猛搖手，「只是⋯⋯只是有個森然的男生跑來說，想要我的電話，希望合宿結束還能保持聯絡⋯⋯這樣而已。」
-
-「什麼——誰誰誰！」妳瞪大眼睛，鑽到生之下面前，「哪個傢伙對英里出手！」
-
-生之下囁嚅著說出了那個男生的名字，妳和真子交換了一個驚嘆的眼神。
-
-「不過⋯⋯得了戀愛病的可能不只一人。」白福意味深長的看向妳，「是不是啊，千璃醬？」
-
-「咦？」妳滿腦子還在思考待會怎麼去向自家球員提出警告，不知怎的話鋒突然轉到妳身上。
-
-「昨晚在第三體育館，我聽到了喔，黑尾那傢伙很親暱的喊妳『千璃醬』。」白福笑得彷彿面前有一大盤美食。
-
-沒等妳回應，真子率先道：「音駒的黑尾？咦⋯⋯我以為跟千璃泱有點什麼的是烏野的那個眼鏡高個子，叫什麼⋯⋯對了！『月島君』！」
-
-這番話讓所有女孩都興奮得兩眼發光，只有谷地面露驚嚇。
-
-「欸欸欸欸？什麼？月島君？」
-
-「不是⋯⋯」妳虛弱的抗議。
-
-「是月島啊⋯⋯」清水低喃，「說真的，我還以為在追求千璃泱醬的是梟谷的隊長。」
-
-「木兔？」白福愣了愣，似乎正努力回想前一晚妳和木兔的互動是如何。
-
-「除了梟谷的經理，女生之中，木兔同學好像只記得千璃泱醬的名字。」
-
-不知道清水是怎麼注意到的⋯⋯但是這個判斷理由也太牽強了吧！妳在內心尖叫。
-
-「千璃泱前天不是煮了紅豆飯嗎？那個叫月島的男生，竟然來提醒她還沒吃飯耶！」真子似乎亟欲為自己的理論增加可信度，不管已經面紅耳赤的妳。
-
-「真子學姊⋯⋯」
-
-「來，各位好好的聽我說。」雀田緩緩張開雙臂，不慌不忙的獨排眾議，「要說千璃泱醬跟誰曖昧，那鐵定是我們家的赤葦了。」
-
-「赤葦？」白福一臉茫然的轉向雀田。
-
-「認識赤葦至今，他看著千璃泱醬的眼神，我還是第一次看到。」雀田滿腹自信的瞟了白福一眼，像是在說「唉呀我本來是不想講的」。
-
-「什麼嘛，聽起來千璃泱的故事比我精彩多了！」生之下的表情已經從羞赧轉為期待。
-
-谷地舉起手，看起來快吐了，「請問可以稍等我嗎？我覺得頭有點昏，我需要做個筆記。」
-
-「等一下、等一下啦！」妳不知所措，輪到妳像稍早的生之下一樣連連搖手，「妳們在說什麼！是從哪來的說法？」
-
-「啊啦啊啦⋯⋯千璃泱醬。」白福用一種相當危險的眼神靠近妳，「妳該不會是人家說的那個⋯⋯惡魔系女子？」
-
-「咦？惡魔？」谷地似乎真的要暈過去，「森學姊被惡魔附身了嗎？」
-
-「我才沒有，白福學姊⋯⋯」妳無奈的朝真子投去求救的眼神。
-
-真子總算是接收到了，「好啦，那讓千璃泱自己說，妳的曖昧對象到底是哪一個人？」
-
-「有四個候選人喔。」生之下幫妳算好了，鄭重的豎起四隻手指，「音駒的黑尾、烏野的月島、梟谷的木兔跟赤葦。」
-
-她一邊數，谷地竟真的開始寫起不知從哪掏出的小筆記本。
-
-罪惡感在妳腦中不斷膨脹，妳以為稱之友誼的互動，在其他人眼中看起來竟是這樣的嗎？
-
-妳仔細把四張面孔想了一遍，首先針對「那個人」的想法最清楚明白，倒不是妳不喜歡他，而是妳認為他對妳沒那種意思⋯⋯
-
-妳開口：「＿＿＿＿的話，是絕對不可能的。」`,
-        fill: '＿＿＿＿',
-        choices: [
-          { key:'K', text:'黑尾學長', sets: { ch13Penalty:'K' }, targets: [{ id:'K', val:-CH13_PENALTY }] },
-          { key:'T', text:'月島君',   sets: { ch13Penalty:'T' }, targets: [{ id:'T', val:-CH13_PENALTY }] },
-          { key:'B', text:'木兔學長', sets: { ch13Penalty:'B' }, targets: [{ id:'B', val:-CH13_PENALTY }] },
-          { key:'A', text:'赤葦同學', sets: { ch13Penalty:'A' }, targets: [{ id:'A', val:-CH13_PENALTY }] },
-        ],
-      },
-      {
-        text:
-`「欸——」所有女孩齊聲高呼。
-
-「千璃泱原來是這麼無情的女人！」雀田說。
-
-谷地的鉛筆「唰——」的把那行名字劃掉。
-
-「不是不是！」妳百口莫辯，「我只是覺得對方沒那個意思，不要造成人家困擾啦！」
-
-「所以千璃泱醬，還是對那個人有意思嗎？」白福似乎決心打破砂鍋問到底。
-
-生之下也不遑多讓，「妳還沒說，最有意思的是哪個人？」
-
-「是⋯⋯是⋯⋯」妳閉起雙眼、緊抿雙唇，回想過去四天許多怦然心動的瞬間。
-
-妳無法否認自己累積了許多異樣的心情，但如果說有個人成功傳達了最多感受給妳，那個人是⋯⋯`,
-        join: 'break',   // 選到的答案自成一行
-        excludePickOf: 0,   // 隱藏第一題已選的角色
-        choices: [
-          { key:'K', text:'「黑尾學長。」', targets: [{ id:'K', val:CH13_BONUS }] },
-          { key:'T', text:'「月島君。」', targets: [{ id:'T', val:CH13_BONUS }] },
-          { key:'B', text:'「木兔學長。」', targets: [{ id:'B', val:CH13_BONUS }] },
-          { key:'A', text:'「赤葦同學。」', targets: [{ id:'A', val:CH13_BONUS }] },
-        ],
-      },
-    ],
-    tail:
-`女孩們的聲音進化成了興奮尖叫。
-
-「大、大家冷靜一點啦⋯⋯」
-
-妳不安的扭動身體，給出這兩個答案，反而讓妳更不自在。
-
-妳到此刻才開始試著面對自己的心情，妳認為自己尚未理出什麼清楚的頭緒。
-
-真子大概是讀出妳寫在臉上的糾結，摟摟妳的肩，「這也沒辦法，畢竟千璃泱那——麼可愛，受歡迎也是很正常的吧！」
-
-其他人也看到了妳面露挫敗，安靜下來。
-
-「沒事的。」清水溫柔的說。
-
-「好啦，千璃泱⋯⋯」白福似乎對於自己挑起這番對話有些愧疚，「在真正有什麼進展前，我們在男生面前都會守口如瓶的，對吧？」
-
-「當然、當然。」雀田忙不迭的附和，「那⋯⋯我們還是回到拷問英里醬的環節好了！」
-
-「欸？什麼？」生之下連忙看錶，「不行不行，訓練快開始了，我們該出門囉！」
-
-「啊！好奸詐！」
-
-妳跟著其他人笑出來，神情雖然放鬆許多，內心卻是接著持續了一整天的波濤洶湧。`,
-    next: 'ch13_tie',   // 結算：決定第十四章跳過誰；必要時進平手加賽題 ch13b
-  },
-
-  // ── 第十三章 ch13b：平手加賽題（只在第 3、4 名同分，或第 2、3、4 名同分時出現）──
-  // 選項只顯示平手的角色（state.ch13Tie）。被選中者 → state.skipSolo14，第十四章單人事件跳過他。
-  {
-    id:'ch13b', label:'第十三章　女生宿舍', scene:'第五天清晨・前往體育館的路上',
-    type: 'inline',
-    segments: [
-      {
-        text:
-`從女生宿舍走到體育館的路上，妳的心情有點沉重。
-
-不只沉重，而且矛盾。
-
-妳想好好沉澱自己的心情，又克制不住想和那幾人聊聊的衝動。
-
-唯獨這一人例外⋯⋯妳只希望關於妳和他的謠言能夠平息，盡量不再打擾彼此。`,
-        silent: true,                 // 選完後選項全部消失，不併入正文
-        onlyKeysFrom: 'ch13Tie',      // 只顯示平手的角色
-        choices: [
-          { key:'K', text:'黑尾鐵朗',   sets: { skipSolo14:'K' } },
-          { key:'T', text:'月島螢',     sets: { skipSolo14:'T' } },
-          { key:'B', text:'木兔光太郎', sets: { skipSolo14:'B' } },
-          { key:'A', text:'赤葦京治',   sets: { skipSolo14:'A' } },
-        ],
-      },
-    ],
-    tail:
-`嗯，但是想這麼多，恐怕只是往自己臉上貼金。
-
-妳深呼吸，試著以平常心展開第五天的合宿集訓。`,
-    next: 'ch14_solo',   // 第十四章：特別之人（單人小節跳過的人由結算決定）
-  },
-  // ── 第十四章 ch14b：第三名平手加賽題（只在第十四章結算仍分不出第三名時出現）──
-  // 選項只顯示需要抉擇的角色（state.ch14TieGroup）。被選中者 → state.ch14Elim，第十五章單人小節跳過。
-  {
-    id:'ch14b', label:'第十四章　特別之人', scene:'第五天夜晚・食堂',
-    type: 'inline',
-    segments: [
-      {
-        text:
-`晚餐時段的食堂，已經過了用餐尖峰時間。
-
-空位很多，但妳仍刻意選擇和他保持一定距離的座位。
-
-經過今晚的談話，與剛剛一路走來的心情沉澱，妳認為減少彼此誤會的可能性，才是最好的做法。
-
-這個人是⋯⋯`,
-        join: 'inline',
-        onlyKeysFrom: 'ch14TieGroup',
-        choices: [
-          { key:'K', text:'黑尾鐵朗',   shown:'黑尾鐵朗。',   sets: { ch14Elim:'K' } },
-          { key:'T', text:'月島螢',     shown:'月島螢。',     sets: { ch14Elim:'T' } },
-          { key:'B', text:'木兔光太郎', shown:'木兔光太郎。', sets: { ch14Elim:'B' } },
-          { key:'A', text:'赤葦京治',   shown:'赤葦京治。',   sets: { ch14Elim:'A' } },
-        ],
-      },
-    ],
-    next: 'ch14_done',
+    next: 'ending',   // TODO：第十三章寫好後，改成 'ch13'
   },
 ];
 
@@ -2468,69 +2184,6 @@ const CH6_EPILOGUE = {
 妳只知道，明晚，妳還想再來第三體育館。`,
   next: 'ch7',  // 第七章
 };
-// ── 第一～九章：選擇題改為「同頁串接」 ──
-// 選到的選項留在正文裡、沒被選到的淡出，回饋與後續正文接在同一頁，不換頁。
-//   join:'break'  → 選項自成一行
-//   join:'inline' → 選項直接接在上一行（冒號、逗號、「妳」…）後面
-// 設定欄位：
-//   chain   要串成同一頁的章節 id（依序），每一章的選擇題各成一個 segment
-//   joins   每個 segment 的接法
-//   tail    最後一個回饋後面，同頁接續的正文（取自某個舊章節的 text）
-//   onFinish 'ch6_pick'：整頁讀完後，直接在同一頁出現第六章的選人按鈕
-// 被併入的舊章節（ch8c、ch9b、ch7_end…）仍保留在資料裡，只是為了相容舊存檔。
-const INLINE_CONVERSIONS = [
-  { chain:['ch1'], joins:['break'] },
-  { chain:['ch2'], joins:['inline'] },
-  { chain:['ch3'], joins:['inline'] },
-  { chain:['ch4'], joins:['inline'] },
-  { chain:['ch5'], joins:['inline'] },
-  // 第六章：月島（自成一行）→ 回饋；點擊繼續後換頁
-  { chain:['ch6'], joins:['break'] },   // 回饋之後換頁，進入洗澡過場與選人畫面
-  // 第七章：月島（接冒號後）→ 回饋 → 收尾正文，同頁
-  { chain:['ch7b'], joins:['inline'], tail:'ch7_end' },
-  // 第八章：
-  //   「妳一緊張，隨口回應：」→ 選項不顯示，直接換頁，新的一頁從回饋「千璃醬來得正好」開始（replace）
-  //   → 同頁接赤葦（接冒號後）→ 回饋＋黑尾（接冒號後）→ 回饋＋木兔（接冒號後）→ 回饋
-  { chain:['ch8_p2','ch8b','ch8c','ch8d'], joins:['break','inline','inline','inline'], replace:[true,false,false,false] },
-  // 第十二章：第一題「果然在妳心中最帥氣的特質是：」（接冒號後、句尾加句號）→ 回饋；之後的「三對三的比賽節奏」照原本換頁
-  { chain:['ch12'], joins:['inline'], suffix:'。' },
-  // 第十章：第二題「妳開口：」（接冒號後）→ 回饋；後面的正文 ch10c 照原本換頁
-  { chain:['ch10b'], joins:['inline'] },
-  // 第九章：黑尾、赤葦、木兔（皆接在「妳」後面）→ 回饋 → 木兔道歉正文，同頁
-  { chain:['ch9','ch9b','ch9c'], joins:['inline','inline','inline'], tail:'ch9d' },
-  // 第九章：月島（接在「妳」後面）→ 回饋 → 收尾正文，同頁
-  { chain:['ch9e'], joins:['inline'], tail:'ch9_end' },
-];
-
-(function convertChaptersToInline() {
-  const orig = {};
-  CHAPTERS.forEach(c => { orig[c.id] = c; });
-  INLINE_CONVERSIONS.forEach(cfg => {
-    const first = orig[cfg.chain[0]];
-    if (!first || first.type === 'inline') return;
-    const last = orig[cfg.chain[cfg.chain.length - 1]];
-    const tailCh = cfg.tail ? orig[cfg.tail] : null;
-    const conv = {
-      id: first.id, label: first.label, scene: first.scene, type: 'inline',
-      segments: cfg.chain.map((id, k) => ({
-        text: orig[id].text,
-        join: cfg.joins[k],
-        replacePage: !!(cfg.replace && cfg.replace[k]),
-        choices: orig[id].choices.map(c => ({
-          text: c.text, targets: c.targets, feedback: c.feedback,
-          // suffix：只加在正文裡顯示的那一句（例如句號），按鈕上的文字不變
-          shown: cfg.suffix ? c.text + cfg.suffix : undefined,
-        })),
-      })),
-      tail: tailCh ? tailCh.text : (first.tail || ''),
-      // 下一步：有接續正文就沿用該章的 next，否則用最後一章選項的 next
-      next: tailCh ? (tailCh.next || last.choices[0].next) : last.choices[0].next,
-    };
-    if (cfg.onFinish) conv.onFinish = cfg.onFinish;
-    CHAPTERS[CHAPTERS.findIndex(c => c.id === first.id)] = conv;
-  });
-})();
-
 // ══════════════════════════════════════════════
 //  狀態
 // ══════════════════════════════════════════════
@@ -2541,14 +2194,6 @@ const state = {
   snapshots: {},     // 章節結束時的好感度快照，例如 { ch10: {K,T,B,A} }
   multiSolo: {},      // 多人小節（第11章起）的進度紀錄
   titleShown: null,  // 已經顯示過章節標題頁的章（例如「第三章」），換章時才再顯示
-  ch13Tie: null,     // 第十三章結算同分時，參與平手的角色 id 陣列，例如 ['T','B']
-  skipSolo14: null,  // 第十三章結算後「第十四章單人事件要跳過」的角色 id（最低分者／扣分題被選者／平手題被選者）
-  ch13Penalty: null, // 第十三章扣分題（絕對不可能）選到的角色 id
-  soloGains: {},     // 各單人小節各角色拿到的加分，例如 { ch14_solo: { K:4, B:2, T:0 } }
-  ch14TieGroup: null,// 第十四章結算需要加賽時，可被選為「跳過」的角色 id
-  ch14Elim: null,    // 第十四章結算淘汰的第三名角色 id
-  skipSolo15: null,  // 第十五章單人小節要跳過的角色 id 陣列（第十四章被跳過者＋第三名）
-  ch16Route: null,   // 第十六章路線：留下的兩人 id（字母排序），例如 'BK'
   inline: null,      // 同頁連續選擇（type:'inline'）的進度，例如 { id:'ch12b', picks:[0,1] }
   savedAt: null,     // ISO 時間戳
 };
@@ -2567,14 +2212,6 @@ function loadState() {
       if (!state.ch6visited) state.ch6visited = [];
       if (!state.snapshots) state.snapshots = {};
       if (!state.multiSolo) state.multiSolo = {};
-      if (state.ch13Tie === undefined) state.ch13Tie = null;
-      if (state.skipSolo14 === undefined) state.skipSolo14 = null;
-      if (state.ch13Penalty === undefined) state.ch13Penalty = null;
-      if (!state.soloGains) state.soloGains = {};
-      if (state.ch14TieGroup === undefined) state.ch14TieGroup = null;
-      if (state.ch14Elim === undefined) state.ch14Elim = null;
-      if (state.skipSolo15 === undefined) state.skipSolo15 = null;
-      if (state.ch16Route === undefined) state.ch16Route = null;
       if (!state.currentChapterId) state.currentChapterId = 'ch1';
       if (!state.titleShown && state.currentChapterId !== 'ch1') {
         // 舊存檔沒有這個欄位：把目前所在章視為已顯示過標題頁，避免讀檔後在章節中間又跳出一次
@@ -2595,14 +2232,6 @@ function clearState() {
   state.multiSolo = {};
   state.titleShown = null;
   state.inline = null;
-  state.ch13Tie = null;
-  state.skipSolo14 = null;
-  state.ch13Penalty = null;
-  state.soloGains = {};
-  state.ch14TieGroup = null;
-  state.ch14Elim = null;
-  state.skipSolo15 = null;
-  state.ch16Route = null;
   state.savedAt = null;
 }
 
@@ -2632,7 +2261,7 @@ const CHAPTER_DAY = {
   ch9:3, ch9b:3, ch9c:3, ch9d:3, ch9e:3, ch9_end:3,
   ch10:3, ch10b:3, ch10c:3,
   ch11:4, ch11_solo:4, ch12:4, ch12b:4, ch12c:4,
-  ch13:5, ch13b:5, ch14:5, ch14_solo:5,
+  ch13:5, ch14:5,
   ch15:6, ch16:6,
   ch17:7,
 };
@@ -2649,9 +2278,6 @@ async function setStoryText(text, asTitleCard = false) {
   el.classList.toggle('chapter-title-card', !!asTitleCard);
   document.getElementById('story-area').classList.toggle('title-card-mode', !!asTitleCard);
   el.textContent = text;
-  // 換頁：解除按鈕區的高度鎖定，並回到新頁面頂端
-  const ca = document.getElementById('choices-area');
-  if (ca) ca.style.minHeight = '';
   // 換頁時回到頁面頂端，不需要手動捲上去
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   document.documentElement.scrollTop = 0;
@@ -2762,108 +2388,11 @@ async function handleChoice(e, choice) {
 // dispatchChapter：純粹依 id 決定要跑哪一種畫面，不含轉場動畫。
 // transitTo（選項點擊後）與 startContinue（讀檔恢復）都共用這個入口，
 // 確保「存檔中斷在哪、下次就從哪接回去」對所有章節類型都成立。
-// 第十四章結算：回傳 { elim: 角色id } 或 { group: [候選角色id…] }（需要加賽題）
-function resolveCh14Elimination() {
-  const ALL = ['K', 'B', 'A', 'T'];
-  let S = state.skipSolo14;                       // 第十四章被跳過者 = 視為第四名
-  if (!S) S = ALL.slice().sort((a, b) => state.affinity[a] - state.affinity[b])[0];   // 保險：直接跳入時取最低分者
-  const played = ALL.filter(c => c !== S);
-  const score = c => state.affinity[c];
-  const gain  = c => ((state.soloGains.ch14_solo || {})[c]) || 0;
-  const m = Math.min(...played.map(score));
-  const L = played.filter(c => score(c) === m);     // 最低分者（可能同分）
-  if (L.length === 1) return { elim: L[0] };
-  const maxG = Math.max(...L.map(gain));
-  const top = L.filter(c => gain(c) === maxG);
-  const cand = top.length === 1 ? L.filter(c => c !== top[0]) : L;   // 保留單獨加分最多者
-  if (cand.length === 1) return { elim: cand[0] };
-  return { group: cand };
-}
-
-function finalizeCh14(elim) {
-  const ALL = ['K', 'B', 'A', 'T'];
-  state.ch14Elim = elim;
-  state.skipSolo15 = [state.skipSolo14, elim].filter(Boolean);
-  const kept = ALL.filter(c => !state.skipSolo15.includes(c));
-  state.ch16Route = kept.slice().sort().join('');
-}
-
 async function dispatchChapter(id) {
   if (id === 'ending') { showEnding(); return; }
 
   // 第六章：進入三段輪流選人畫面
   if (id === 'ch6_pick') { await renderCh6Pick(); return; }
-
-  // 第十三章結算：決定第十四章要跳過哪位角色的單人小節
-  //   1. 最低分者唯一 → 直接跳過他
-  //   2. 最低分有同分（第 3、4 名，或第 2、3、4 名，或四人）→
-  //        扣分題（絕對不可能）選到的人若是同分者之一 → 跳過他
-  //        否則 → 進平手加賽題 ch13b，由玩家選
-  if (id === 'ch13_tie') {
-    const sc = Object.entries(state.affinity).sort((a, b) => b[1] - a[1]);
-    const lowest = sc[3][1];
-    const group = sc.filter(e => e[1] === lowest).map(e => e[0]);
-    const afterId = CHAPTERS.find(c => c.id === 'ch13b').next;
-    state.ch13Tie = null;
-    state.skipSolo14 = null;
-    if (group.length === 1) {
-      state.skipSolo14 = group[0];
-    } else if (state.ch13Penalty && group.includes(state.ch13Penalty)) {
-      state.skipSolo14 = state.ch13Penalty;
-    } else {
-      state.ch13Tie = group;
-      state.inline = null;
-      await dispatchChapter('ch13b');
-      return;
-    }
-    state.inline = null;
-    saveState();
-    await dispatchChapter(afterId);
-    return;
-  }
-  // 第十四章結算：淘汰第三名（第十五章單人小節跳過），並決定第十六章路線
-  //   第十四章被跳過的人視為第四名，第十五章同樣跳過。其餘三人：
-  //   1. 最低分唯一 → 淘汰他
-  //   2. 最低分有同分 → 保留「第十四章單人小節加分最多」且唯一的人，淘汰剩下的；
-  //      若仍分不出（只剩一人 → 直接淘汰；剩兩人以上 → 進加賽題 ch14b）
-  if (id === 'ch14_tie') {
-    const res = resolveCh14Elimination();
-    state.ch14TieGroup = null;
-    if (res.elim) {
-      finalizeCh14(res.elim);
-      state.inline = null;
-      saveState();
-      await dispatchChapter(CH15_ENTRY);
-    } else {
-      state.ch14TieGroup = res.group;
-      state.inline = null;
-      await dispatchChapter('ch14b');
-    }
-    return;
-  }
-  if (id === 'ch14_done') {
-    finalizeCh14(state.ch14Elim);
-    state.inline = null;
-    saveState();
-    await dispatchChapter(CH15_ENTRY);
-    return;
-  }
-  if (id === 'ch14b' && (!state.ch14TieGroup || !state.ch14TieGroup.length)) {
-    await dispatchChapter(CH15_ENTRY);
-    return;
-  }
-  // 第十六章：依留下的兩人進入對應路線（章節 id 見 CH16_ROUTES；尚未寫好的版本先接結局）
-  if (id === 'ch16') {
-    const r = CH16_ROUTES[state.ch16Route];
-    const exists = r && (CHAPTERS.some(c => c.id === r.id) || MULTI_SOLO[r.id]);
-    await dispatchChapter(exists ? r.id : 'ending');
-    return;
-  }
-  // ch13b 必須有平手名單才有意義（debug 直接跳入時略過）
-  if (id === 'ch13b' && (!state.ch13Tie || !state.ch13Tie.length)) {
-    await dispatchChapter(CHAPTERS.find(c => c.id === 'ch13b').next);
-    return;
-  }
 
   // 第十一章起：多人小節（依快照排名跳過落選角色）
   if (MULTI_SOLO[id]) { await runMultiSolo(id); return; }
@@ -2924,45 +2453,14 @@ async function dispatchChapter(id) {
 // ══════════════════════════════════════════════
 function inlineJoiner(seg) { return seg.join === 'inline' ? '' : '\n\n'; }
 
-function pickShown(choice) { return choice.shown !== undefined ? choice.shown : choice.text; }
-
 function buildInlineText(segs, picks, upto, tail) {
   let out = '';
   for (let k = 0; k <= upto; k++) {
-    // replacePage：選項不顯示，選完整頁換成回饋（之後的段落接在同一頁）
-    if (segs[k].replacePage && k < picks.length) {
-      out = segs[k].choices[picks[k]].feedback || '';
-      continue;
-    }
-    out += (k ? '\n\n' : '');
-    const picked = k < picks.length;
-    if (segs[k].fill && picked) {
-      // 填空型：選項文字取代正文裡的底線
-      out += segs[k].text.replace(segs[k].fill, segs[k].choices[picks[k]].text);
-    } else {
-      out += segs[k].text;
-      if (picked && !segs[k].silent) out += inlineJoiner(segs[k]) + pickShown(segs[k].choices[picks[k]]);
-    }
-    // 該選項專屬的回饋：緊接在選項後面，同頁不換頁
-    if (picked && segs[k].choices[picks[k]].feedback) out += '\n\n' + segs[k].choices[picks[k]].feedback;
+    out += (k ? '\n\n' : '') + segs[k].text;
+    if (k < picks.length) out += inlineJoiner(segs[k]) + segs[k].choices[picks[k]].text;
   }
   if (tail && picks.length >= segs.length) out += '\n\n' + tail;
   return out;
-}
-
-// 此段要顯示哪些選項（回傳原始索引）：excludePickOf 會隱藏先前某題已選的角色
-function visibleChoiceIdx(ch, k) {
-  const seg = ch.segments[k];
-  let all = seg.choices.map((_, i) => i);
-  if (seg.onlyKeysFrom) {
-    const keys = state[seg.onlyKeysFrom] || [];
-    all = all.filter(i => keys.includes(seg.choices[i].key));
-  }
-  if (seg.excludePickOf === undefined) return all;
-  const prevPick = state.inline && state.inline.picks[seg.excludePickOf];
-  if (prevPick === undefined) return all;
-  const key = ch.segments[seg.excludePickOf].choices[prevPick].key;
-  return all.filter(i => seg.choices[i].key !== key);
 }
 
 async function renderInlineChapter(ch) {
@@ -2987,13 +2485,12 @@ async function renderInlineChapter(ch) {
 function showInlineChoices(ch, k) {
   const area = document.getElementById('choices-area');
   area.innerHTML = '';
-  visibleChoiceIdx(ch, k).forEach((i, vi) => {
-    const choice = ch.segments[k].choices[i];
+  ch.segments[k].choices.forEach((choice, i) => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
     const num = document.createElement('span');
     num.className = 'choice-num';
-    num.textContent = vi + 1;
+    num.textContent = i + 1;
     const txt = document.createElement('span');
     txt.textContent = choice.text;
     btn.appendChild(num);
@@ -3007,8 +2504,9 @@ function showInlineChoices(ch, k) {
       btn.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
       btn.style.opacity = '1';
       btn.style.transform = 'translateX(0)';
-    }, 250 + vi * 110);
+    }, 250 + i * 110);
   });
+  setTimeout(() => area.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 600);
 }
 
 async function handleInlineChoice(e, ch, k, i) {
@@ -3019,7 +2517,6 @@ async function handleInlineChoice(e, ch, k, i) {
   e.currentTarget.classList.add('clicked');
 
   (choice.targets || []).forEach(t => { state.affinity[t.id] += t.val; });
-  if (choice.sets) Object.assign(state, choice.sets);
   state.inline.picks.push(i);
   saveState();
   updateStatusBar();
@@ -3030,36 +2527,15 @@ async function handleInlineChoice(e, ch, k, i) {
     b.style.opacity = '0';
   });
   await sleep(450);
-  const keepY = window.scrollY;
-  area.style.minHeight = area.offsetHeight + 'px';   // 避免按鈕消失使頁面變短、捲動位置被夾到底部
   area.innerHTML = '';
 
-  const rest = (k + 1 < segs.length ? '\n\n' + segs[k + 1].text
-                                    : (ch.tail ? '\n\n' + ch.tail : ''));
-  if (segs[k].replacePage) {
-    // 換頁：選項不顯示，新的一頁從回饋開始，後續正文直接接在同一頁
-    await setStoryText((choice.feedback || '') + rest);
-    await sleep(300);
-    if (k + 1 < segs.length) showInlineChoices(ch, k + 1);
-    else showInlineContinue(ch);
-    return;
-  }
-  const stEl = document.getElementById('story-text');
-  const fb = choice.feedback ? '\n\n' + choice.feedback : '';   // 回饋同頁串接
-  let chunk;
-  if (segs[k].fill) {
-    // 填空型：先把正文裡的底線換成選項文字，再接上後續正文
-    const done = buildInlineText(segs, state.inline.picks, k, null);
-    stEl.textContent = done;
-    chunk = fb + rest;
-  } else {
-    chunk = (segs[k].silent ? '' : inlineJoiner(segs[k]) + pickShown(choice)) + fb + rest;
-  }
+  const chunk = inlineJoiner(segs[k]) + choice.text
+              + (k + 1 < segs.length ? '\n\n' + segs[k + 1].text
+                                     : (ch.tail ? '\n\n' + ch.tail : ''));
   const span = document.createElement('span');
   span.className = 'inline-chunk';
   span.textContent = chunk;
-  stEl.appendChild(span);
-  window.scrollTo({ top: keepY, left: 0, behavior: 'instant' });   // 維持原本的頁面位置
+  document.getElementById('story-text').appendChild(span);
 
   await sleep(500);
   if (k + 1 < segs.length) showInlineChoices(ch, k + 1);
@@ -3067,8 +2543,6 @@ async function handleInlineChoice(e, ch, k, i) {
 }
 
 function showInlineContinue(ch) {
-  // 第六章：讀完同頁正文後，直接在同一頁出現選人按鈕（不換頁）
-  if (ch.onFinish === 'ch6_pick') { renderCh6Pick(true); return; }
   const area = document.getElementById('choices-area');
   area.innerHTML = '';
   const hint = document.createElement('div');
@@ -3080,6 +2554,7 @@ function showInlineContinue(ch) {
     await transitTo(ch.next);
   };
   area.addEventListener('click', proceed, { once: true });
+  setTimeout(() => area.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
 
 async function transitTo(nextId) {
@@ -3094,8 +2569,6 @@ async function transitTo(nextId) {
 //  第六章三段輪流引擎
 // ══════════════════════════════════════════════
 const CH6_ORDER = ['K', 'B', 'A'];
-// 三段各自選項的接法：黑尾、木兔接在冒號後面；赤葦自成一行
-const CH6_JOIN = { K:'inline', B:'inline', A:'break' };
 
 async function renderCh6Pick(initial = false) {
   const remaining = CH6_ORDER.filter(k => !state.ch6visited.includes(k));
@@ -3212,40 +2685,51 @@ async function handleCh6SegmentChoice(e, key, choice) {
   if (!state.ch6visited.includes(key)) state.ch6visited.push(key);
   saveState();
 
-  // 沒被選到的選項淡出；被選的那句話留在正文，回饋與區段接續正文同頁串接
+  await sleep(400);
+  await setStoryText(choice.feedback);
+
   const area = document.getElementById('choices-area');
-  area.querySelectorAll('.choice-btn').forEach(b => {
-    b.style.transition = 'opacity 0.4s ease';
-    b.style.opacity = '0';
-  });
-  await sleep(450);
-  const keepY = window.scrollY;
-  area.style.minHeight = area.offsetHeight + 'px';
   area.innerHTML = '';
-
-  const seg = CH6_SEGMENTS[key];
-  const sep = CH6_JOIN[key] === 'inline' ? '' : '\n\n';
-  let chunk = sep + choice.text + '\n\n' + choice.feedback;
-  if (seg.epilogue && seg.epilogue.trim().length > 0) chunk += '\n\n' + seg.epilogue;
-  const span = document.createElement('span');
-  span.className = 'inline-chunk';
-  span.textContent = chunk;
-  document.getElementById('story-text').appendChild(span);
-  window.scrollTo({ top: keepY, left: 0, behavior: 'instant' });
-  await sleep(500);
-
   const hint = document.createElement('div');
   hint.className = 'continue-hint';
   hint.textContent = '▼  點擊繼續  ▼';
   area.appendChild(hint);
 
+  // 判斷此區段是否有「選項後正文接續」
+  const seg = CH6_SEGMENTS[key];
+  const hasEpilogue = seg.epilogue && seg.epilogue.trim().length > 0;
+
   const proceed = async () => {
     area.removeEventListener('click', proceed);
-    const ov = document.getElementById('transition-overlay');
-    ov.classList.add('show');
-    await sleep(350);
-    ov.classList.remove('show');
-    await renderCh6Pick();
+
+    if (hasEpilogue) {
+      // 先顯示區段正文接續，再回到選人畫面
+      const ov = document.getElementById('transition-overlay');
+      ov.classList.add('show');
+      await sleep(350);
+      ov.classList.remove('show');
+      await setStoryText(seg.epilogue);
+      area.innerHTML = '';
+      const hint2 = document.createElement('div');
+      hint2.className = 'continue-hint';
+      hint2.textContent = '▼  點擊繼續  ▼';
+      area.appendChild(hint2);
+      const proceed2 = async () => {
+        area.removeEventListener('click', proceed2);
+        const ov2 = document.getElementById('transition-overlay');
+        ov2.classList.add('show');
+        await sleep(350);
+        ov2.classList.remove('show');
+        await renderCh6Pick();
+      };
+      area.addEventListener('click', proceed2, { once: true });
+    } else {
+      const ov = document.getElementById('transition-overlay');
+      ov.classList.add('show');
+      await sleep(350);
+      ov.classList.remove('show');
+      await renderCh6Pick();
+    }
   };
   area.addEventListener('click', proceed, { once: true });
 }
@@ -3343,19 +2827,8 @@ async function runMultiSolo(multiSoloId) {
       playhead: { pos: 0 },
     };
   }
+  ensureSnapshot(def.snapshotKey);
   const progress = state.multiSolo[multiSoloId];
-
-  // 固定順序＋跳過指定角色的章節（第十四章）：不需要同分判定，直接定案
-  if (def.skipState) {
-    if (!progress.finalOrder) {
-      const skip = state[def.skipState];
-      progress.finalOrder = (def.charOrder || CHAR_ORDER).filter(c => c !== skip);
-      progress.playhead = { pos: 0 };
-      saveState();
-    }
-  } else {
-    ensureSnapshot(def.snapshotKey);
-  }
 
   if (progress.finalOrder) {
     // 已經定案（可能是重新讀檔），直接從上次進度接著播
@@ -3521,7 +2994,7 @@ function buildMultiSoloPlaylist(multiSoloId) {
   (def.common || []).filter(c => c.after === 'start').forEach(c => {
     c.steps.forEach(step => list.push(step));
   });
-  (def.charOrder || CHAR_ORDER).forEach(charId => {
+  CHAR_ORDER.forEach(charId => {
     if (order.includes(charId)) {
       (def.events[charId] || []).forEach(step => list.push(step));
     }
@@ -3605,62 +3078,9 @@ async function playMultiSoloQueue(multiSoloId, pos) {
 
 async function handleMultiSoloChoice(e, multiSoloId, pos, choice) {
   document.querySelectorAll('.choice-btn').forEach(b => b.style.pointerEvents = 'none');
-
-  // 步驟設定了 join（'break' 或 'inline'）→ 同頁串接：選項留在正文、其餘淡出，回饋接在後面
-  //   mergeNext:true → 回饋之後，下一個步驟的正文也接在同一頁
-  const playlist = buildMultiSoloPlaylist(multiSoloId);
-  const curStep = playlist[pos];
-  if (curStep && curStep.join) {
-    (choice.targets || []).forEach(t => {
-      state.affinity[t.id] += t.val;
-      (state.soloGains[multiSoloId] = state.soloGains[multiSoloId] || {})[t.id] = ((state.soloGains[multiSoloId] || {})[t.id] || 0) + t.val;
-    });
-    saveState();
-
-    const area = document.getElementById('choices-area');
-    area.querySelectorAll('.choice-btn').forEach(b => {
-      b.style.transition = 'opacity 0.4s ease';
-      b.style.opacity = '0';
-    });
-    await sleep(450);
-    const keepY = window.scrollY;
-    area.style.minHeight = area.offsetHeight + 'px';   // 避免按鈕消失使頁面變短、捲動位置被夾到底部
-    area.innerHTML = '';
-
-    const merged = curStep.mergeNext ? playlist[pos + 1] : null;
-    let chunk = (curStep.join === 'inline' ? '' : '\n\n') + choice.text + '\n\n' + (choice.feedback || '');
-    if (merged && merged.text) chunk += '\n\n' + merged.text;
-    const span = document.createElement('span');
-    span.className = 'inline-chunk';
-    span.textContent = chunk;
-    document.getElementById('story-text').appendChild(span);
-    window.scrollTo({ top: keepY, left: 0, behavior: 'instant' });
-    await sleep(500);
-
-    const hint = document.createElement('div');
-    hint.className = 'continue-hint';
-    hint.textContent = '▼  點擊繼續  ▼';
-    area.appendChild(hint);
-
-    const nextPos = pos + (merged ? 2 : 1);
-    const proceedInline = async () => {
-      area.removeEventListener('click', proceedInline);
-      const ov = document.getElementById('transition-overlay');
-      ov.classList.add('show');
-      await sleep(350);
-      ov.classList.remove('show');
-      await playMultiSoloQueue(multiSoloId, nextPos);
-    };
-    area.addEventListener('click', proceedInline, { once: true });
-    return;
-  }
-
   e.currentTarget.classList.add('clicked');
 
-  (choice.targets || []).forEach(t => {
-      state.affinity[t.id] += t.val;
-      (state.soloGains[multiSoloId] = state.soloGains[multiSoloId] || {})[t.id] = ((state.soloGains[multiSoloId] || {})[t.id] || 0) + t.val;
-    });
+  (choice.targets || []).forEach(t => { state.affinity[t.id] += t.val; });
   saveState();
 
   await sleep(400);
@@ -4330,261 +3750,6 @@ const MULTI_SOLO = {
   },
 };
 
-// ── 第十一章單人小節：選擇題同頁串接設定 ──
-//   木兔、黑尾：選項自成一行 → 回饋；後面的正文照原本換頁
-//   月島、赤葦：選項接在上一行的「妳」後面 → 回饋 → 下面的正文也同頁接上
-(function configureCh11Inline() {
-  const ev = MULTI_SOLO.ch11_solo.events;
-  ev.B[0].join = 'break';
-  ev.K[0].join = 'break';
-  ev.T[2].join = 'inline';  ev.T[2].mergeNext = true;
-  ev.A[0].join = 'inline';  ev.A[0].mergeNext = true;
-})();
-
-// ══════════════════════════════════════════════
-//  第十四章：特別之人（單人小節固定順序：黑尾→木兔→赤葦→月島；第十三章結算決定跳過誰）
-//    選項接法：黑尾、木兔 = 接在上一行冒號後（inline）；赤葦、月島 = 自成一行（break）
-//    每題選完 → 回饋同頁 → 該角色的〔正文接續〕也同頁（mergeNext）
-//    各段之間的「獨立正文」（common）一定會讀到，即使該角色被跳過
-// ══════════════════════════════════════════════
-MULTI_SOLO.ch14_solo = {
- "id": "ch14_solo",
- "label": "第十四章　特別之人",
- "scene": "第五天夜晚・第三體育館外",
- "charOrder": [
-  "K",
-  "B",
-  "A",
-  "T"
- ],
- "skipState": "skipSolo14",
- "nextChapter": "ch14_tie",
- "common": [
-  {
-   "after": "start",
-   "steps": [
-    {
-     "scene": "第五天夜晚・第三體育館外",
-     "text": "從早上到下午，妳都刻意跟森然球隊黏在一起，盡量只跟森然的人說話。\n\n身為森然的經理，妳沒想到要做到這件事，竟然這麼不容易。\n\n畢竟是集訓，各校的人都混作一群，練習賽的對手也是輪流，森然又是地主，別說他校的人，就連要好好避開那「四位候選人」，都有點困難。\n\n每次不小心和他們對到眼，妳都只好拙劣的轉開，如果有人直接走過來想找妳，妳就混入森然的人群中裝忙。\n\n幸好妳的腳傷已無大礙，動作現在靈活得很。\n\n本日集訓結束，進入自主練習時間。\n\n妳不得不面對考慮了一整天的問題：今晚還要去三館嗎？\n\n腦中有個嚴厲的聲音，不斷警告妳說今晚別去了。\n\n妳本想依循那個聲音的意思，但猛一抬頭，竟已看到「第三體育館」的牌子。\n\n「不行不行⋯⋯」\n\n妳正想低頭快速通過門口，便響起日向充滿活力的聲音。\n\n「啊！森學姊！」\n\n「唔⋯⋯日向同學⋯⋯」妳勉強拉起嘴角，心虛的揮揮手。\n\n「森學姊今晚也會來幫我們做記錄嗎？太好了！」\n\n「那個⋯⋯」妳這才想到，妳身上沒有記錄表單。\n\n畢竟妳今晚是不打算來的啊。\n\n妳猶豫著是否要以拿表單的名義逃脫，乾脆不回來三館了。",
-     "choices": []
-    }
-   ]
-  },
-  {
-   "after": "K",
-   "steps": [
-    {
-     "scene": "第五天夜晚・第一體育館",
-     "text": "妳還是走回了第一體育館，去找被遺留在某個角落的那疊表單紙。\n\n低頭看著手中的紙張，妳再度萌生了逃避的念頭。\n\n妳轉身看往體育館裡正在自主練習的森然隊員們，向隊長小鹿野搭話。\n\n「話說，小鹿野學長，你們自己練習沒問題嗎？需要我幫忙嗎？」\n\n「啊？沒問題啦。」小鹿野不明所以地看向妳，「大家都很知道自主練習該做什麼，妳就去休息或做其他想做的事吧。」\n\n「可是我⋯⋯」\n\n「哎呀，拜託——」小鹿野哈哈大笑，「如果需要經理才能練球，那還叫強隊嗎！」\n\n妳宛如受到當頭棒喝。\n\n從來都不是他們需要妳。\n\n是妳需要第三體育館的他們，或是⋯⋯「他」。\n\n他們沒有妳也能突飛猛進，但妳需要成為他們的助力，才能感受到自己存在的價值。\n\n妳需要第三體育館，豐富妳這一個夏季的回憶。\n\n啊，我真是太太太太自私了。\n\n妳這麼想著，鼻頭一酸，捏起紙張、跑出第一體育館。",
-     "choices": []
-    }
-   ]
-  },
-  {
-   "after": "B",
-   "steps": [
-    {
-     "scene": "第五天夜晚・第三體育館",
-     "text": "拉扯了半天，妳今晚終於踏入第三體育館。\n\n連妳都開始覺得自己煩，但體育館內氣氛一如往常的熱絡，每個人也都熱情的跟妳打招呼。\n\n果然我把自己想得太重要了，妳不禁自嘲。\n\n妳整理好心情，再度展開幫忙記錄的工作。\n\n日向和灰羽加入後開始的三對三，已經來到第三天，練習賽一天比一天有看頭。\n\n不只一年級突飛猛進，原本就得心應手的二三年級，似乎也跟著流暢許多。",
-     "choices": []
-    }
-   ]
-  },
-  {
-   "after": "A",
-   "steps": [
-    {
-     "scene": "第五天夜晚・第三體育館",
-     "text": "今晚的練習似乎更有效率，妳在這些人身上看到一天的變化能有多大，尤其是一年級的三人，神情又不一樣了。\n\n有了上次白福的提醒，今天大家自動自發注意食堂關門的時間，預留了吃飯空檔，準時解散。\n\n心情暢快許多的妳，此時已飢腸轆轆，白天因為情緒低落、天氣又熱，食慾跟著變差，吃得不多。\n\n妳迫不及待跟著其他人收拾體育館，一同前往食堂，結束第五夜的三館自主練習。",
-     "choices": []
-    }
-   ]
-  }
- ],
- "events": {
-  "K": [
-   {
-    "scene": "第五天夜晚・第三體育館外",
-    "text": "「哦！小個子來啦！」黑尾從門邊探出半個身軀，注意到了躲在廊柱陰影中的妳，「千璃醬？」\n\n「黑尾學長⋯⋯」妳弱聲打了招呼。\n\n「學長好！」相較之下，日向的聲音充滿元氣，不像是個已經訓練一整天的人。\n\n「⋯⋯小個子，你先進去吧。」黑尾心不在焉的擺了擺手，踏出門檻走向妳。\n\n日向與黑尾擦身時，好奇的看了你們一眼，但依言跑進體育館。\n\n黑尾越走越近，妳下意識退了一小步，他怔了怔，止住步伐，隨即換上瀟灑的笑容。\n\n「啊啦，千璃醬，這樣我很受傷耶！發生什麼事啦？」\n\n妳沉思了好一會兒，下定決心豁出去，「可以問你一件事嗎，黑尾學長？」\n\n「當然啊，隨時洗耳恭聽。」\n\n「黑尾學長用暱稱稱呼別人的時候，都是抱持著怎樣的心態呢？是覺得交情很好才這樣做嗎？還是說⋯⋯」\n\n妳暫停下來，一時找不到適切又委婉的語詞。\n\n但黑尾好像明白了，他收起笑意，注視著妳，走廊上的燈恰好斜斜打在他右側的長瀏海上，讓底下被遮擋的右眸比平時明亮，顯得格外認真。\n\n「千璃醬⋯⋯呃，千璃泱同學⋯⋯覺得我對妳使用暱稱，很輕浮嗎？讓妳不舒服了嗎？」\n\n妳回答：",
-    "choices": [
-     {
-      "text": "「我只是覺得⋯⋯如果因此以為我對黑尾學長是特別的，那是不是太蠢了⋯⋯」",
-      "targets": [
-       {
-        "id": "K",
-        "val": 4
-       }
-      ],
-      "feedback": "「怎、怎麼會！」黑尾急忙說，「千璃醬、不、千璃泱同學⋯⋯」\n\n妳被黑尾反常的急態逗笑了，「我一點也不介意黑尾學長那樣喊我，繼續叫我『千璃醬』就好了。」\n\n「那、千璃醬⋯⋯」黑尾朝妳跨了一步，似乎也是鼓足勇氣，「妳對我來說，當然是特別的。」"
-     },
-     {
-      "text": "「我沒有覺得不舒服⋯⋯只是，黑尾學長這樣讓人太困惑了。」",
-      "targets": [
-       {
-        "id": "K",
-        "val": 0
-       }
-      ],
-      "feedback": "黑尾垂下頭，沉默好一陣。\n\n「讓妳困惑，或有任何不好的感受，都非我本意。」他右眼又被瀏海的陰影擋住了，「總之，我很抱歉，千璃泱同學⋯⋯森同學⋯⋯」\n\n「黑尾學長不用改稱呼啦，也請不要道歉。」妳苦笑道，「我只是⋯⋯擔心不必要的誤會，擔心造成你的困擾。」\n\n「⋯⋯千璃醬。」黑尾的笑容比妳更苦澀，「如果妳是那樣想的話，我會注意的。」"
-     },
-     {
-      "text": "「不是的！我只是想釐清⋯⋯黑尾學長是用什麼樣的心態在喊我『千璃醬』⋯⋯」",
-      "targets": [
-       {
-        "id": "K",
-        "val": 2
-       }
-      ],
-      "feedback": "黑尾略一思索，「抱歉，我不是很確定千璃醬想要聽到哪方面的答案⋯⋯但我可以保證，我一點輕挑的意思都沒有！」\n\n「我就說了不是⋯⋯」\n\n「我待人很真誠的。」黑尾以誠懇貌按住胸口，「千璃醬，無論如何都可以相信我，好嗎？」"
-     }
-    ],
-    "join": "inline",
-    "mergeNext": true
-   },
-   {
-    "scene": "第五天夜晚・第三體育館外",
-    "text": "看著這樣的黑尾，妳哭笑不得，忽然覺得自己幼稚到不行。\n\n好不容易黑尾站在這裡、妳站在這裡，合宿只剩一天半，還有什麼時間好浪費？\n\n「抱歉，說了奇怪的話。」妳甩甩頭，「我不該在意這種枝微末節的小事。」\n\n「說起來，為什麼當初會很順的就喊了『千璃醬』呢⋯⋯」輪到黑尾陷入自己的思緒。\n\n「好啦好啦沒關係⋯⋯」\n\n「真的就是很自然，沒有什麼理由耶。」黑尾帶著淺笑，回顧那些舊記憶片段，「跟森然的幾次練習賽，不自覺就注意到妳⋯⋯那個開朗、認真、盡心照顧球隊的女孩⋯⋯」\n\n「唔⋯⋯黑尾學長⋯⋯」妳的雙頰驟熱。\n\n「放在心上久了，就擅自認為是可以這樣稱呼的關係了吧，抱歉。」\n\n「都說了不用道歉。」妳咕噥著，「那個、我忘記帶記錄表單，我回去拿，待會就過來。」\n\n黑尾抬起手，又古怪的放下。\n\n這一回動作明顯得連妳都能察覺，黑尾想摸摸妳的頭，但他忍住了，只是對妳露齒笑笑。\n\n「好，等等見。」",
-    "choices": []
-   }
-  ],
-  "B": [
-   {
-    "scene": "第五天夜晚・第三體育館",
-    "text": "「啊！森！是森耶！」\n\n木兔明明蹲著在綁鞋帶，不知怎的可以用眼角餘光發現門邊的妳。\n\n其他人都在喝水，看來大家正巧在休息。\n\n「木兔學長，晚安。」妳朝他點點頭，但話都還沒說完，木兔已經咚咚咚地跑到妳跟前。\n\n「我剛才還在問赤葦，今天妳怎麼沒來，不過日向說他有看到妳。」\n\n他半蹲在門檻邊，妳站在最低的台階上，仰望那張汗水淋漓的笑臉。\n\n妳揚揚手中的紙張，盡量不將稍早的情緒顯露在臉上，「我回去拿這個啦！」\n\n木兔的身子往前傾，此時他背朝體育館的日光燈，面部陰暗，只有一雙金眸炯炯，彷彿夜裡視力超群的貓頭鷹。\n\n「妳在哭嗎？」\n\n妳暗叫可惡，木兔背光、反而是妳面光，仍稍稍紅腫的鼻頭和眼皮，恐怕一覽無遺。\n\n妳還來不及承認或否認，木兔便走下台階，拉著妳躲到門外的牆邊。\n\n「妳不想被發現吧？那在這裡再待一下」\n\n他說著，捏了捏妳的鼻尖，動作沒有任何曖昧成份，似乎是他相信這樣能幫助妳的紅鼻子恢復。\n\n「木兔學長⋯⋯這樣會更紅啦。」妳難為情的閃躲。\n\n「不是捏一捏可以幫助血液循環什麼的嗎？」\n\n他講出「血液循環」的模樣彷彿那是什麼很高級的字眼，妳不禁笑出聲。\n\n「才不是這樣的。」\n\n「喔。」\n\n木兔和妳並肩靠在牆上，靜默了幾秒。\n\n「妳哭的原因，跟妳今天都不理我有關係嗎？」\n\n妳沒料到木兔會這麼問，藏也藏不住驚訝的表情，索性反問：「如果有人認為我跟木兔學長⋯⋯走得很近，你會困擾嗎？」\n\n木兔歪了歪大腦袋，「為什麼會？這不是事實嗎？」\n\n這個回答像一記直拳打在妳胸口，花了好一會兒思索才說：",
-    "choices": [
-     {
-      "text": "「這樣啊⋯⋯我只是⋯⋯覺得自己很愚蠢才哭的。」",
-      "targets": [
-       {
-        "id": "B",
-        "val": 2
-       }
-      ],
-      "feedback": "話一出口，眼睛又痠得掉了兩滴淚。\n\n妳沒有回應關於「今天不理木兔」這件事，一旦回應，就等同承認妳真的做了這麼失禮的事。\n\n「怎麼會，森妳比我聰明多了！」木兔顯得有點侷促不安，「如果⋯⋯是因為我讓妳覺得自己很笨，妳才不理我，那我向妳道歉。」\n\n妳破涕為笑，睨了木兔一眼，妳之於他是否特別，已經不是最重要的事。\n\n他之於妳是特別的存在，妳意識到這點就夠了。"
-     },
-     {
-      "text": "「我擔心自己給木兔學長帶來困擾了，所以感到沮喪。」",
-      "targets": [
-       {
-        "id": "B",
-        "val": 4
-       }
-      ],
-      "feedback": "「嗄？什麼嘛！」木兔用力拍了拍妳的肩，對妳露齒燦笑，「我一點都沒有覺得困擾啊！」\n\n那道笑容像突如其來的日射，照亮了昏黃的夜間走廊。\n\n妳不由自主跟著微笑，「我現在知道了。」\n\n「森，如果妳之後又有什麼擔心的事，就儘管來找我吧！」\n\n木兔說著，拇指抹過妳的眼角，妳這才注意到有淚珠溢出。\n\n妳尷尬的笑著，抹去餘下的淚水，「好！我會記得的。」"
-     },
-     {
-      "text": "「沒事，都是我自己一個人的問題。」",
-      "targets": [
-       {
-        "id": "B",
-        "val": 0
-       }
-      ],
-      "feedback": "木兔緊緊皺起眉頭，「所以，跟我有關，但又是妳一個人的問題⋯⋯什麼意思？」\n\n「⋯⋯就是跟木兔學長無關的意思啦。」妳挺起胸膛，「都是我想太多！」\n\n木兔顯得更加苦惱，陷入另一番苦思。\n\n「那⋯⋯森，妳還會不理我嗎？」\n\n「不會了。」妳苦笑著，又補了一句：「抱歉。」"
-     }
-    ],
-    "join": "inline",
-    "mergeNext": true
-   },
-   {
-    "scene": "第五天夜晚・第三體育館",
-    "text": "「那⋯⋯我先進去。」木兔看著妳的神色變化，似乎跟著放鬆了些，「我怕黑尾他們沒有強力扣球可以攔網，會很無聊。」\n\n「我也可以了！」妳深呼吸，搓搓鼻子、把鼻涕倒吸回去。\n\n「什麼嘛！妳還不是自己捏鼻子！」\n\n「才不一樣！」\n\n在稀鬆平常的鬥嘴之中，妳和木兔一起重新踏進第三體育館。",
-    "choices": []
-   }
-  ],
-  "A": [
-   {
-    "scene": "第五天夜晚・第三體育館",
-    "text": "連續打了好幾場，黑尾示意大家休息。\n\n眾人紛紛走到角落拿起毛巾和水壺，只有一人朝妳走來，而妳正認真在記錄表上塗塗寫寫，直到他近得遮住了光源，妳才發現。\n\n「赤葦同學！」妳驚慌失措的遮住自己剛才認真塗鴉的內容。\n\n「千璃泱同學。」赤葦對妳的舉動也感到意外，頓了一頓，「妳⋯⋯腳傷好點了嗎？」\n\n「唔，托赤葦同學的福，今天走路都沒問題了。」妳猛點頭。\n\n赤葦又安靜了幾秒，「早上就想關心妳的傷勢，但妳看起來好像⋯⋯很忙。」\n\n妳還是一個勁的點頭，「抱歉、抱歉。」\n\n對於妳無厘頭的舉動，赤葦露出似笑非笑的表情，終於也按捺不住好奇心，「我可以看看嗎？」\n\n妳掙扎了兩秒，心虛的把手從紙上移開，他很自然的走到妳身邊讀記錄。\n\n赤葦個人記錄的那一行，妳在尾巴的空白處寫了「漂亮的一記二次攻擊！」還畫了三個不同大小的星星，妳剛剛就是在忙著把星星內部塗黑。\n\n饒是冷靜如赤葦，這時也難掩臉上的得意，但妳只覺得丟臉到不行。\n\n「能得到千璃泱同學三顆星的稱讚，是我莫大的榮幸。」\n\n妳也不曉得自己在彆扭什麼，這下不是此地無銀三百兩嗎？\n\n妳試圖正色道：「赤葦同學那一下二次攻擊真的很精彩，黑尾學長跟月島君都氣炸了。」\n\n「木兔學長也氣炸了。」\n\n妳和赤葦四目相接，想到木兔做好扣球的萬全準備、卻落空時的表情，一起笑出聲來。\n\n「所以⋯⋯一切都還好嗎？」赤葦試探的問句，讓妳明白，他也察覺到了妳白天的刻意，只是他等到確認妳恢復正常才詢問。\n\n如果妳一直疏遠他，恐怕赤葦也只會默默保持距離，你們就只會成為曾經交錯、漸行漸遠的兩條線。",
-    "choices": [
-     {
-      "text": "妳緩慢的開口：「原本有一些⋯⋯煩惱，但現在沒事了。」",
-      "targets": [
-       {
-        "id": "A",
-        "val": 0
-       }
-      ],
-      "feedback": "赤葦看著妳，沒有馬上回應。那眼神不是探詢，是關心與觀察。\n\n「是跟我有關的煩惱嗎？」他小心翼翼的問。\n\n妳故作開朗的伸伸懶腰，「就是自己胡思亂想，擔心跟赤葦同學的關係有變化。」\n\n赤葦細細咀嚼了妳的話，「現在不會了嗎？」\n\n「嗯！」妳頷首，朝他伸出手，「我跟赤葦同學，可以一直當好朋友的吧！」\n\n赤葦緩慢的握住妳的手，妳晃了晃，他便鬆鬆的放開了。"
-     },
-     {
-      "text": "妳半開玩笑的說：「赤葦同學再用那種眼神看著我，又被誤會怎麼辦？」",
-      "targets": [
-       {
-        "id": "A",
-        "val": 2
-       }
-      ],
-      "feedback": "「哪種眼神？」赤葦頓時慌亂起來，甚至還摸了摸自己的眼皮。\n\n妳哈哈大笑，沒想到那個在球場上無比冷靜的赤葦，竟然會因為這種爛玩笑緊張。\n\n於是妳決定把憋在心裡的話，趁著玩笑的氣氛說出。\n\n「有人說⋯⋯赤葦同學看我的眼神不太一樣。」\n\n赤葦略一思索，帶著微笑迎上妳的目光。\n\n「居然有人注意到了啊。」"
-     },
-     {
-      "text": "妳露出微笑，「能像這樣和赤葦同學稀鬆平常的說話，就再好不過了。」",
-      "targets": [
-       {
-        "id": "A",
-        "val": 4
-       }
-      ],
-      "feedback": "赤葦慢條斯理的換了個站姿，妳感覺他好像靠妳更近了⋯⋯總不會是故意的吧？\n\n「我很珍惜這樣的時刻，千璃泱同學也是嗎？」\n\n妳用力點頭，「當然是啊。」\n\n赤葦的雙眸竟似乎能穿透進妳的心，像在回應妳對自己的暗中嘲笑。\n\n「如果是這樣，就沒什麼好擔心的。」他的眼神溫柔而堅定，「只要千璃泱同學願意，我不會走開的。」"
-     }
-    ],
-    "join": "break",
-    "mergeNext": true
-   },
-   {
-    "scene": "第五天夜晚・第三體育館",
-    "text": "「赤葦同學⋯⋯」\n\n妳怔怔望著他，一時不知作何反應。\n\n可惜妳也沒有機會好好給他回應了，其餘幾人陸續朝你們走來，打算看記錄表單做進一步的檢討。\n\n赤葦若無其事的加入討論，看不出他是否因方才的對話有任何心情變化。\n\n不要緊，妳想，現在這樣就好了。",
-    "choices": []
-   }
-  ],
-  "T": [
-   {
-    "scene": "第五天夜晚・走廊",
-    "text": "浩浩蕩蕩前往食堂的一行人中，卻有一個人落單。\n\n妳四下張望，發現月島跟隊伍保持了一定的距離，默默走在最後頭。\n\n妳不知道他是累到走很慢、還是故意耍自閉，或者以上皆是。\n\n妳停下腳步打算等他，「月島君⋯⋯」\n\n結果月島居然也停了下來。\n\n「你在幹嘛？」妳對他的舉動感到莫名其妙。\n\n走廊上的光線並不充沛，妳看不清月島厚厚的鏡片後方是什麼眼神。\n\n「如森學姊所願，跟妳保持距離。」\n\n妳不悅的皺起眉，「我才沒有那麼⋯⋯說⋯⋯」\n\n尾音因為妳的心虛弱下，難道月島也識破了妳拙劣的演技？\n\n說起來，今晚在三館練習時，月島幾乎沒跟妳說話，都是站在群體的最外緣。\n\n你們原地僵持了幾秒，其他人兀自走遠了，月島才慢慢走近妳。\n\n「今天每次對到眼，森學姊都把頭轉開，裝沒看到，不是嗎？」\n\n聞言，妳忍不住吐槽回去，「月島君不是向來都這樣做嗎？」\n\n月島被堵得語塞，皺眉不語，妳有一種勝利的快感。\n\n「誰叫我平常跟月島君打招呼，你都很冷淡，還常常無視我。」妳沒能忍住得寸進尺，月島像被塞了個苦瓜的表情讓妳樂不可支。\n\n「所以嘛，我就想說，如果月島君不理我的話，那我也⋯⋯」\n\n「抱歉。」\n\n「對吧？我⋯⋯什麼？」妳過了一秒才意識到月島說出口的是道歉，驚嚇溢於言表。\n\n「抱歉。」月島低聲又重複了一遍，「我並不是刻意要傷害森學姊的感受。」\n\n「我⋯⋯我⋯⋯」妳的氣焰瞬間弱下，「我其實也沒那麼受傷⋯⋯」\n\n月島又朝妳踏近一步，俯視的角度讓妳再次體認到他真的很高，只是體型瘦削看起來沒有其他人大隻。\n\n「我也是今天才知道。」月島的嗓音更輕了，「森學姊如果跟我保持距離，我會感到鬱悶。」\n\n妳聞言動容，同時察覺月島似乎正在對妳敞開心房⋯⋯\n\n至此，妳已經明白月島這個人，只是用堅硬的盔甲包覆心中柔軟的部份，但他不一定願意太多人曉得。\n\n妳想知道他究竟抱持著怎樣的想法。",
-    "choices": [
-     {
-      "text": "「靠太近的話，會被月島君討厭嗎？」",
-      "targets": [
-       {
-        "id": "T",
-        "val": 4
-       }
-      ],
-      "feedback": "月島靜默的看著妳好一會兒，這時妳已經可以看見他鏡片後方的眼神。\n\n雖然覺得有點不可思議⋯⋯但妳覺得那是溫柔。\n\n「太近我不喜歡。」他淡淡的說完，刻意頓了一頓，像在觀察妳的反應。\n\n而妳中招了，露出迷惘又失落的表情。\n\n「但是⋯⋯」月島的鏡片閃爍著得意的光芒，「我也不喜歡太遠。」\n\n「⋯⋯這是什麼為難人的答案。」\n\n妳鼓起腮幫子，月島輕聲笑了起來。"
-     },
-     {
-      "text": "「如果、我是說如果⋯⋯有閒言閒語說我們走得很近，那怎麼辦？」",
-      "targets": [
-       {
-        "id": "T",
-        "val": 2
-       }
-      ],
-      "feedback": "「都說是閒言閒語了，還有什麼好理會？」\n\n月島不慍不火的說著，脖子和下巴卻突然以奇異的角度動了動。\n\n妳不知道，那是月島試圖藏住自己的表情，不想讓妳發現他因為這一題有所動搖。\n\n妳只覺得這個大膽的提問，似乎沒有引發月島的不快，欣然道：「所以跟月島君相處，不用在意別人的眼光囉？」\n\n月島牢牢盯著妳，妳的目光彷彿就此被鎖住，無法將之移開。\n\n「森學姊只要在意我就好了。」"
-     },
-     {
-      "text": "「可是⋯⋯保持距離對月島君來說，也許是比較不會困擾的做法。」",
-      "targets": [
-       {
-        "id": "T",
-        "val": 0
-       }
-      ],
-      "feedback": "月島的眉眼間似乎堆疊起更深的陰影。\n\n「請不要擅自揣測我的想法。」\n\n月島的聲音又輕又柔，妳卻能讀出其中的怒氣。\n\n「生氣了？」妳試探著，湊前想看清他的表情。\n\n「我已經說了，請不要擅自揣測我的想法。」\n\n這一句，明明用詞好像重一點，反而聽起來沒那麼生氣了。"
-     }
-    ],
-    "join": "break",
-    "mergeNext": true
-   },
-   {
-    "scene": "第五天夜晚・走廊",
-    "text": "「什麼嘛⋯⋯」妳嘟嚷著別開臉，讓自己有點空間整理思緒，「月島君好難懂喔。」\n\n「⋯⋯有嗎？」月島的聲音縮得更輕。\n\n「我們不能就直接把話講清楚嗎？」妳就是忍不住想要再推進多一些些⋯⋯不論是對話還是你們的關係。\n\n「我又沒有不讓森學姊說話，請講。」\n\n妳翻翻白眼，「那你要不要跟我一起走去食堂？」\n\n「好的。」\n\n「那走吧，食堂快關門了。」\n\n月島點點頭，你們一起邁步。\n\n妳突然發現，月島已經和妳並排走著了。\n\n雖然妳還弄不清自己期待怎麼樣的終點，總之是一種進步吧⋯⋯\n\n妳和月島，並肩走向食堂、走向合宿第五夜的終點。",
-    "choices": []
-   }
-  ]
- }
-};
-
 // ══════════════════════════════════════════════
 //  結局判定
 // ══════════════════════════════════════════════
@@ -4667,62 +3832,19 @@ function getSaveChapterLabel() {
   return ch?.label ?? '最終章';
 }
 
-// ── 標題頁開始按鈕的位置（座標以「背景圖本身的像素」計算，圖片換尺寸也不用改程式）──
-//   橫式圖：圓心 (1286, 933)、半徑 42
-//   直式圖：尚未提供座標，先暫放在圖的下方中央；請給我直式圖上的圓心與半徑後再更新
-//   w / h：圖檔還沒放入、讀不到實際尺寸時才使用的預設尺寸
-const TITLE_BTN = {
-  landscape: { src:'images/bg-day-landscape.jpg', cx:1286, cy:933,  r:42, w:1920, h:1080 },
-  portrait:  { src:'images/bg-day-portrait.jpg',  cx:540,  cy:1640, r:42, w:1080, h:1920 },
-};
-const _titleImgSize = {};   // 快取各圖檔的實際尺寸
-
-function positionTitleButton() {
-  const screen = document.getElementById('start-screen');
-  const btn = document.getElementById('title-start-btn');
-  if (!screen || !btn || screen.style.display === 'none') return;
-  const box = screen.getBoundingClientRect();
-  const portrait = box.width <= box.height;
-  const cfg = portrait ? TITLE_BTN.portrait : TITLE_BTN.landscape;
-  const size = _titleImgSize[cfg.src] || { w: cfg.w, h: cfg.h };
-  if (!_titleImgSize[cfg.src]) {
-    _titleImgSize[cfg.src] = false;              // 避免重複載入
-    const img = new Image();
-    img.onload = () => { _titleImgSize[cfg.src] = { w: img.naturalWidth, h: img.naturalHeight }; positionTitleButton(); };
-    img.onerror = () => { _titleImgSize[cfg.src] = { w: cfg.w, h: cfg.h }; };
-    img.src = cfg.src;
-  }
-  // 背景圖是 cover、置中：先算縮放與位移，再把圖上的座標換算成畫面座標
-  const scale = Math.max(box.width / size.w, box.height / size.h);
-  const dx = (box.width  - size.w * scale) / 2;
-  const dy = (box.height - size.h * scale) / 2;
-  const d = cfg.r * 2 * scale;
-  btn.style.width  = d + 'px';
-  btn.style.height = d + 'px';
-  btn.style.left   = (dx + (cfg.cx - cfg.r) * scale) + 'px';
-  btn.style.top    = (dy + (cfg.cy - cfg.r) * scale) + 'px';
-}
-window.addEventListener('resize', positionTitleButton);
-window.addEventListener('orientationchange', positionTitleButton);
-if (/showbtn/.test(location.hash + location.search)) document.getElementById('start-screen').classList.add('show-btn');
-
-function showStartPage(n) {
-  document.getElementById('start-page-1').style.display = n === 1 ? 'block' : 'none';
-  document.getElementById('start-page-2').style.display = n === 2 ? 'block' : 'none';
-  if (n === 1) positionTitleButton();
-}
-
 function showStartScreen() {
   const hasSave = loadState() && state.savedAt;
-  showStartPage(1);
+  const screen = document.getElementById('start-screen');
+
   if (hasSave) {
     document.getElementById('start-save-info').style.display = 'block';
     document.getElementById('start-save-chapter').textContent = getSaveChapterLabel();
     document.getElementById('start-save-time').textContent = '存檔時間：' + formatSaveTime(state.savedAt);
-    document.getElementById('btn-reset').style.display = 'block';
+    document.getElementById('btn-continue').style.display = 'block';
+    document.getElementById('btn-reset').style.display   = 'block';
+    document.getElementById('btn-new').textContent = '重新開始';
   } else {
-    document.getElementById('start-save-info').style.display = 'none';
-    document.getElementById('btn-reset').style.display = 'none';
+    document.getElementById('btn-new').textContent = '開始遊戲';
   }
 }
 
@@ -4733,13 +3855,8 @@ async function dismissStartScreen() {
   screen.style.display = 'none';
 }
 
-// 「了解，開始遊戲吧！」：有存檔就繼續，沒有就從第一章開始
-async function startMain() {
-  if (loadState() && state.savedAt) return startContinue();
-  return startNew();
-}
-
 async function startContinue() {
+  // 狀態已在 showStartScreen 裡 loadState，直接繼續
   await dismissStartScreen();
   updateSaveTimeLabel();
   updateStatusBar();
@@ -4747,9 +3864,14 @@ async function startContinue() {
 }
 
 async function startNew() {
+  if (state.savedAt) {
+    // 有存檔時，「重新開始」等同重置
+    askReset(true);
+    return;
+  }
   clearState();
   await dismissStartScreen();
-  await dispatchChapter(CHAPTERS[0].id);
+  await renderChapter(CHAPTERS[0]);
 }
 
 function setConfirmTexts(html, okLabel) {
@@ -4762,9 +3884,9 @@ function askReset(fromNew = false) {
   document.getElementById('confirm-dialog').dataset.fromNew = fromNew ? '1' : '0';
   document.getElementById('confirm-dialog').dataset.mode = '';
 }
-// 遊戲中途按右上角「重新開始」：確認後清除存檔，並回到標題首頁
+// 遊戲中途按右上角「重新開始」：確認後清除存檔，並從第一章開始
 function askRestart() {
-  setConfirmTexts('確定要重新開始嗎？<br>目前的遊戲進度將會消失，並回到遊戲標題首頁。', '確定重新開始');
+  setConfirmTexts('確定要重新開始嗎？<br>目前的遊戲進度將會消失，並從最前面開始。', '確定重新開始');
   document.getElementById('confirm-dialog').classList.add('show');
   document.getElementById('confirm-dialog').dataset.mode = 'restart';
 }
@@ -4777,15 +3899,22 @@ async function confirmReset() {
   closeConfirm();
   clearState();
   if (isRestart) {
-    // 重新載入頁面可確實中止進行中的劇情流程，並回到遊戲標題首頁
+    // 重新載入頁面可確實中止進行中的劇情流程，載入後直接從第一章開始
+    try { sessionStorage.setItem('natsu_gym3_autostart', '1'); } catch(e){}
     location.reload();
     return;
   }
   if (fromNew) {
     await dismissStartScreen();
-    await dispatchChapter(CHAPTERS[0].id);
+    await renderChapter(CHAPTERS[0]);
   } else {
-    showStartScreen();
+    // 重置後回到開始畫面重新整理狀態
+    document.getElementById('start-screen').style.display = 'flex';
+    document.getElementById('start-screen').classList.remove('hide');
+    document.getElementById('start-save-info').style.display = 'none';
+    document.getElementById('btn-continue').style.display = 'none';
+    document.getElementById('btn-reset').style.display    = 'none';
+    document.getElementById('btn-new').textContent = '開始遊戲';
   }
 }
 
@@ -4795,18 +3924,32 @@ async function confirmReset() {
 function restartGame() {
   document.getElementById('ending-screen').classList.remove('show');
   clearState();
-  // 回到標題首頁
+  // 回到開始畫面
   const screen = document.getElementById('start-screen');
   screen.style.display = 'flex';
   screen.classList.remove('hide');
-  showStartScreen();
+  document.getElementById('start-save-info').style.display = 'none';
+  document.getElementById('btn-continue').style.display = 'none';
+  document.getElementById('btn-reset').style.display    = 'none';
+  document.getElementById('btn-new').textContent = '開始遊戲';
 }
 
 // ══════════════════════════════════════════════
 //  啟動
 // ══════════════════════════════════════════════
 async function initGame() {
-  try { sessionStorage.removeItem('natsu_gym3_autostart'); } catch(e){}
+  let autostart = false;
+  try {
+    autostart = sessionStorage.getItem('natsu_gym3_autostart') === '1';
+    sessionStorage.removeItem('natsu_gym3_autostart');
+  } catch(e){}
+  if (autostart) {
+    // 由「重新開始」按鈕觸發：略過開始畫面，直接從第一章開始
+    document.getElementById('start-screen').style.display = 'none';
+    clearState();
+    await renderChapter(CHAPTERS[0]);
+    return;
+  }
   showStartScreen();
 }
 
@@ -4861,8 +4004,6 @@ const DEBUG_JUMP_TARGETS = [
   { id:'ch10',      label:'第十章　三對三' },
   { id:'ch11_solo', label:'第十一章　病假（含同分問答，依目前分數重新排名）' },
   { id:'ch12',      label:'第十二章　經理的工作' },
-  { id:'ch13',      label:'第十三章　女生宿舍' },
-  { id:'ch14_solo',  label:'第十四章　特別之人（跳過的人依第十三章結算；直接跳入則四人都播）' },
 ];
 
 function populateDebugJumpSelect() {
