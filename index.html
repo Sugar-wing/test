@@ -55,11 +55,13 @@
   :root {
     --img-bg-day:   url("images/bg-day-landscape.jpg");
     --img-bg-night: url("images/bg-night-landscape.jpg");
+    --img-title:    url("images/title-landscape.jpg");   /* 遊戲首頁專用，和遊戲內文背景分開 */
   }
   @media (max-aspect-ratio: 1/1) {
     :root {
       --img-bg-day:   url("images/bg-day-portrait.jpg");
       --img-bg-night: url("images/bg-night-portrait.jpg");
+      --img-title:    url("images/title-portrait.jpg");
     }
   }
   #bg-day, #bg-night {
@@ -350,12 +352,14 @@
   #start-screen {
     position: fixed; inset: 0; z-index: 150;
     /* 標題頁自己帶一張白天背景圖（不透明，才不會透出後面的遊戲畫面）；圖檔未放入時顯示米色 */
-    background: var(--img-bg-day) center / cover no-repeat, var(--bg-deep);
+    background: var(--img-title) center / cover no-repeat, var(--bg-deep);
     overflow-y: auto;
     display: flex; align-items: safe center; justify-content: center;
     flex-direction: column;
     transition: opacity 0.5s ease;
   }
+  /* 說明頁（第二頁）改用遊戲內文的白天背景圖，文字才不會壓在首頁的插圖上 */
+  #start-screen.on-page2 { background: var(--img-bg-day) center / cover no-repeat, var(--bg-deep); }
   .start-content { position: relative; }
   /* 標題頁的隱形圓形開始按鈕：位置與大小由 JS 依背景圖座標算出（見 TITLE_BTN） */
   #title-start-btn {
@@ -4667,13 +4671,13 @@ function getSaveChapterLabel() {
   return ch?.label ?? '最終章';
 }
 
-// ── 標題頁開始按鈕的位置（座標以「背景圖本身的像素」計算，圖片換尺寸也不用改程式）──
-//   橫式圖：圓心 (1286, 933)、半徑 42
-//   直式圖：尚未提供座標，先暫放在圖的下方中央；請給我直式圖上的圓心與半徑後再更新
+// ── 標題頁開始按鈕的位置（座標以「首頁圖本身的像素」計算，圖片換尺寸也不用改程式）──
+//   橫式首頁圖 images/title-landscape.jpg：圓心 (1286, 933)、半徑 42
+//   直式首頁圖 images/title-portrait.jpg ：圓心 (1248, 558)、半徑 42
 //   w / h：圖檔還沒放入、讀不到實際尺寸時才使用的預設尺寸
 const TITLE_BTN = {
-  landscape: { src:'images/bg-day-landscape.jpg', cx:1286, cy:933,  r:42, w:1920, h:1080 },
-  portrait:  { src:'images/bg-day-portrait.jpg',  cx:540,  cy:1640, r:42, w:1080, h:1920 },
+  landscape: { src:'images/title-landscape.jpg', cx:1286, cy:933, r:42, w:1920, h:1080 },
+  portrait:  { src:'images/title-portrait.jpg',  cx:1248, cy:558, r:42, w:1440, h:2560 },
 };
 const _titleImgSize = {};   // 快取各圖檔的實際尺寸
 
@@ -4706,15 +4710,15 @@ window.addEventListener('resize', positionTitleButton);
 window.addEventListener('orientationchange', positionTitleButton);
 if (/showbtn/.test(location.hash + location.search)) document.getElementById('start-screen').classList.add('show-btn');
 
-// ── 背景圖診斷：網址後面加 #showbtn（或 #checkimg），畫面左上角會列出四張背景圖是否讀得到 ──
-//    ✓ = 讀到了（顯示實際像素尺寸）；✗ = 找不到（檔名、大小寫、資料夾位置有誤，或還沒部署完成）
+// ── 背景圖診斷：網址後面加 #showbtn（或 #checkimg），畫面左上角會列出六張圖是否讀得到 ──
+//    列出首頁圖與遊戲內文背景圖共六張。✓ = 讀到了（顯示實際像素尺寸）；✗ = 找不到（檔名、大小寫、資料夾位置有誤，或還沒部署完成）
 if (/showbtn|checkimg/.test(location.hash + location.search)) {
   const box = document.createElement('div');
   box.style.cssText = 'position:fixed;left:8px;top:8px;z-index:99999;background:rgba(255,255,255,0.94);'
     + 'border:1px solid #999;border-radius:6px;padding:8px 12px;font:12px/1.7 monospace;color:#222;pointer-events:none;';
   box.innerHTML = '<b>背景圖檢查</b><br>';
   document.body.appendChild(box);
-  ['bg-day-landscape', 'bg-day-portrait', 'bg-night-landscape', 'bg-night-portrait'].forEach(name => {
+  ['title-landscape', 'title-portrait', 'bg-day-landscape', 'bg-day-portrait', 'bg-night-landscape', 'bg-night-portrait'].forEach(name => {
     const line = document.createElement('div');
     const src = 'images/' + name + '.jpg';
     line.textContent = '… ' + src;
@@ -4729,6 +4733,7 @@ if (/showbtn|checkimg/.test(location.hash + location.search)) {
 function showStartPage(n) {
   document.getElementById('start-page-1').style.display = n === 1 ? 'block' : 'none';
   document.getElementById('start-page-2').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('start-screen').classList.toggle('on-page2', n === 2);
   if (n === 1) positionTitleButton();
 }
 
