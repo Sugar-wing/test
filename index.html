@@ -4706,6 +4706,26 @@ window.addEventListener('resize', positionTitleButton);
 window.addEventListener('orientationchange', positionTitleButton);
 if (/showbtn/.test(location.hash + location.search)) document.getElementById('start-screen').classList.add('show-btn');
 
+// ── 背景圖診斷：網址後面加 #showbtn（或 #checkimg），畫面左上角會列出四張背景圖是否讀得到 ──
+//    ✓ = 讀到了（顯示實際像素尺寸）；✗ = 找不到（檔名、大小寫、資料夾位置有誤，或還沒部署完成）
+if (/showbtn|checkimg/.test(location.hash + location.search)) {
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;left:8px;top:8px;z-index:99999;background:rgba(255,255,255,0.94);'
+    + 'border:1px solid #999;border-radius:6px;padding:8px 12px;font:12px/1.7 monospace;color:#222;pointer-events:none;';
+  box.innerHTML = '<b>背景圖檢查</b><br>';
+  document.body.appendChild(box);
+  ['bg-day-landscape', 'bg-day-portrait', 'bg-night-landscape', 'bg-night-portrait'].forEach(name => {
+    const line = document.createElement('div');
+    const src = 'images/' + name + '.jpg';
+    line.textContent = '… ' + src;
+    box.appendChild(line);
+    const im = new Image();
+    im.onload  = () => { line.textContent = '✓ ' + src + '（' + im.naturalWidth + '×' + im.naturalHeight + '）'; line.style.color = '#2b632a'; };
+    im.onerror = () => { line.textContent = '✗ ' + src + ' 找不到'; line.style.color = '#c0392b'; };
+    im.src = src + '?t=' + Date.now();   // 加時間參數，避免被舊快取騙到
+  });
+}
+
 function showStartPage(n) {
   document.getElementById('start-page-1').style.display = n === 1 ? 'block' : 'none';
   document.getElementById('start-page-2').style.display = n === 2 ? 'block' : 'none';
