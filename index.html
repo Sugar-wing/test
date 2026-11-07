@@ -332,13 +332,16 @@
   }
 
   /* 過場 */
+  /* 換頁轉場：遮罩本身透明（只負責擋住點擊），改成讓內容區淡出再淡入。
+     這樣背景圖全程都看得到，不會被米色蓋住而閃一下。 */
   #transition-overlay {
     position:fixed; inset:0; z-index:90;
-    background:var(--bg-deep);
-    pointer-events:none; opacity:0;
-    transition:opacity 0.35s ease;
+    background:transparent;
+    pointer-events:none;
   }
-  #transition-overlay.show { opacity:1; pointer-events:all; }
+  #transition-overlay.show { pointer-events:all; }
+  #app { transition: opacity 0.35s ease; }
+  body:has(#transition-overlay.show) #app { opacity: 0; }
 
   .continue-hint {
     text-align:center; color:var(--text-muted);
@@ -365,6 +368,13 @@
   #title-start-btn {
     position: absolute; padding: 0; margin: 0; border: 0; border-radius: 50%;
     background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  /* 首頁圖讀不到時（還沒上傳、檔名錯），把隱形按鈕變成看得見的綠色圓鈕，避免玩家無法開始 */
+  #start-screen.title-img-missing #title-start-btn {
+    background: rgba(43,99,42,0.92); box-shadow: 0 2px 14px rgba(0,0,0,0.25);
+  }
+  #start-screen.title-img-missing #title-start-btn::after {
+    content: '▶'; color: #fff; font-size: 18px; line-height: 1; padding-left: 3px;
   }
   #title-start-btn:focus-visible { outline: 2px solid rgba(43,99,42,0.6); outline-offset: 2px; }
   #start-screen.show-btn #title-start-btn { outline: 2px dashed #e53935; background: rgba(229,57,53,0.12); }
@@ -4593,7 +4603,7 @@ MULTI_SOLO.ch14_solo = {
 //  第十五章：相約（單人小節固定順序：赤葦→木兔→月島→黑尾；只播放留下的兩人）
 //    第十四章結算決定要跳過的兩人（skipSolo15）；選項一律接在上一行的「妳」後面（inline），
 //    每題選完 → 回饋同頁 → 〔正文接續〕也同頁（mergeNext）
-//    黑尾單人小節：先留白（events.K = []），寫好後把步驟填進去即可
+//    黑尾單人小節：已補上（同樣是接在「妳」後面）
 // ══════════════════════════════════════════════
 MULTI_SOLO.ch15_solo = {
  "id": "ch15_solo",
@@ -4765,7 +4775,51 @@ MULTI_SOLO.ch15_solo = {
     "choices": []
    }
   ],
-  "K": []
+  "K": [
+   {
+    "scene": "第六天午後・體育館",
+    "text": "「唷！」\n\n「黑尾學長！」見黑尾朝妳走來，妳欣喜的迎上去。\n\n今天妳多次和黑尾對上眼，卻都只能遠遠打招呼，一直沒機會好好說上話。\n\n「午安，千璃泱同學。」\n\n「都說了不用改稱呼⋯⋯」\n\n妳無奈的擺擺手，又不想在尚有距離的時候大聲討論此事，繼續朝他走去，沒發覺黑尾眼中閃過一絲狡黠。\n\n「哎呀——等等等，到這裡就好。」\n\n黑尾忽然抬手示意妳別再前進，妳猛然止住步伐，來不及掩飾失落的表情。\n\n「唉唷！抱歉，千璃醬，我不是⋯⋯」黑尾不好意思的摸摸後腦勺，「剛比賽完，我流了一身汗，怕味道⋯⋯」\n\n說著，他拉了拉衣領通風。\n\n妳從努力不表現受傷，變成努力憋住笑意。\n\n妳朝他跨了兩步，「什麼嘛，我都當了一學期的經理，沒在介意這種事的，百臭不侵！」\n\n這些話只有一半是真的，高中男生的汗臭是不可能習慣的，但妳並不會因此嫌惡他們。\n\n「騙人。」\n\n結果馬上就被黑尾識破了。\n\n「說謊的話鼻子會變長喔。」他伸手捏住妳的鼻頭，「來，這樣就聞不到臭臭了！」\n\n「我、我才沒有說謊！」妳說話變得像卡通配音會出現的濃濁鼻音，「我又不討厭黑尾學長的味道！」\n\n這是妳本來不打算說出口的實話。\n\n「⋯⋯真的嗎？」\n\n「真、真的啦！」妳不敢看向黑尾的臉，只能手忙腳亂的試圖把他的手拍掉。\n\n黑尾鬆開妳的鼻子，卻往前跨了一步，「那⋯⋯再靠近千璃醬一點，也沒關係嗎？」\n\n不陌生的汗鹹與皂香竄入鼻中，妳",
+    "choices": [
+     {
+      "text": "帶著一絲慌張回應：「當然沒關係啊！」",
+      "targets": [
+       {
+        "id": "K",
+        "val": 2
+       }
+      ],
+      "feedback": "黑尾低頭笑看著妳，卻仍保有謹慎姿態，「這樣的距離，可以嗎⋯⋯千璃醬？」\n\n「我早就說了可以嘛！」妳鼓起臉頰，「黑尾學長幹嘛一直問！」\n\n「因為很在意妳啊。」黑尾以稀鬆平常的語調說出這句話，妳怔然看著他，咀嚼其中意涵。\n\n「因為在意，所以不希望讓千璃醬有任何不好的感受。」\n\n黑尾小心翼翼的抬手，輕拍了下妳的頭頂。"
+     },
+     {
+      "text": "囁嚅著開口：「總不能要我說『超級歡迎』吧⋯⋯」",
+      "targets": [
+       {
+        "id": "K",
+        "val": 0
+       }
+      ],
+      "feedback": "「如果千璃醬說『超級歡迎』，那我就會超級開心。」黑尾露出一口潔白的牙齒。\n\n「幹嘛要超級開心？明明是超級奇怪吧。」\n\n妳皺起臉、擺出怪表情，黑尾笑起來。\n\n「千璃醬真的很可愛耶。」\n\n不知為何，這句話雖像玩笑，卻不輕浮。"
+     },
+     {
+      "text": "誇張的作勢深深吸氣，「我從來都不覺得有關係啊。」",
+      "targets": [
+       {
+        "id": "K",
+        "val": 4
+       }
+      ],
+      "feedback": "黑尾睜大眼睛，難掩驚喜，「真的嗎？」\n\n他的神情像收到禮物的小男孩，反而讓妳開始反省，自己是不是昨天太過份了？\n\n妳下定決心，想要好好傳達自己的心情。\n\n「我非常樂意⋯⋯跟黑尾學長拉近距離。」\n\n黑尾笑了，彷彿終於放下壓在胸口的大石。\n\n他伸手按上妳的頭頂，溫柔的揉了又柔、揉了又揉。"
+     }
+    ],
+    "join": "inline",
+    "mergeNext": true
+   },
+   {
+    "scene": "第六天午後・體育館",
+    "text": "妳為了隱藏靦腆，硬著脖子說：「黑尾學長再這樣，我就要叫你『小鐵』喔。」\n\n「哈哈哈⋯⋯那也可以喔！」黑尾笑得胸膛都隨之震動，好一會兒才漸歇，「啊⋯⋯真喜歡現在和千璃醬的距離⋯⋯不⋯⋯我⋯⋯」\n\n妳抬眼看向他，黑尾的注視和煦而懇切。\n\n「我很貪心啊⋯⋯千璃醬，今晚自主練習完，可以先別走嗎？」\n\n「嗯、嗯，可以啊。」\n\n妳機械式的回答，一時沒細想黑尾這個邀約背後的意涵。\n\n畢竟，怎麼可能說不呢？",
+    "choices": []
+   }
+  ]
  }
 };
 
@@ -4872,10 +4926,11 @@ function positionTitleButton() {
   if (!_titleImgSize[cfg.src]) {
     _titleImgSize[cfg.src] = false;              // 避免重複載入
     const img = new Image();
-    img.onload = () => { _titleImgSize[cfg.src] = { w: img.naturalWidth, h: img.naturalHeight }; positionTitleButton(); };
-    img.onerror = () => { _titleImgSize[cfg.src] = { w: cfg.w, h: cfg.h }; };
+    img.onload = () => { _titleImgSize[cfg.src] = { w: img.naturalWidth, h: img.naturalHeight, missing: false }; positionTitleButton(); };
+    img.onerror = () => { _titleImgSize[cfg.src] = { w: cfg.w, h: cfg.h, missing: true }; positionTitleButton(); };
     img.src = cfg.src;
   }
+  screen.classList.toggle('title-img-missing', !!size.missing);   // 首頁圖讀不到時，按鈕改為可見
   // 背景圖是 cover、置中：先算縮放與位移，再把圖上的座標換算成畫面座標
   const scale = Math.max(box.width / size.w, box.height / size.h);
   const dx = (box.width  - size.w * scale) / 2;
@@ -4886,6 +4941,15 @@ function positionTitleButton() {
   btn.style.left   = (dx + (cfg.cx - cfg.r) * scale) + 'px';
   btn.style.top    = (dy + (cfg.cy - cfg.r) * scale) + 'px';
 }
+// 首頁按下 Enter 或空白鍵，也可以進入說明頁（鍵盤／看不到按鈕時的備用入口）
+window.addEventListener('keydown', e => {
+  const sc = document.getElementById('start-screen');
+  const p1 = document.getElementById('start-page-1');
+  if (sc && sc.style.display !== 'none' && p1 && p1.style.display !== 'none' && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    showStartPage(2);
+  }
+});
 window.addEventListener('resize', positionTitleButton);
 window.addEventListener('orientationchange', positionTitleButton);
 if (/showbtn/.test(location.hash + location.search)) document.getElementById('start-screen').classList.add('show-btn');
@@ -5067,8 +5131,8 @@ const DEBUG_JUMP_TARGETS = [
   { id:'ch11_solo', label:'第十一章　病假（含同分問答，依目前分數重新排名）' },
   { id:'ch12',      label:'第十二章　經理的工作' },
   { id:'ch13',      label:'第十三章　女生宿舍' },
-  { id:'ch15_solo',  label:'第十五章　相約（跳過的人依第十四章結算；直接跳入則四人都播）' },
   { id:'ch14_solo',  label:'第十四章　特別之人（跳過的人依第十三章結算；直接跳入則四人都播）' },
+  { id:'ch15_solo',  label:'第十五章　相約（跳過的人依第十四章結算；直接跳入則四人都播）' },
 ];
 
 function populateDebugJumpSelect() {
@@ -5101,6 +5165,13 @@ async function jumpToChapterDebug(id) {
   // 那個舊監聽會在新畫面的第一次點擊時一起觸發，把玩家拉回前一章的下一頁
   const oldArea = document.getElementById('choices-area');
   oldArea.replaceWith(oldArea.cloneNode(false));
+
+  // 還停在首頁（開始畫面）時，先把它收起來，否則跳轉後的章節會被首頁蓋住
+  const startScreen = document.getElementById('start-screen');
+  if (startScreen && startScreen.style.display !== 'none') {
+    startScreen.classList.add('hide');
+    startScreen.style.display = 'none';
+  }
 
   const ov = document.getElementById('transition-overlay');
   ov.classList.add('show');
