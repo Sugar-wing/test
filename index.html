@@ -327,8 +327,22 @@
     transition: all 0.2s ease;
   }
   #restart-corner-btn:hover { color: var(--accent); border-color: var(--accent); }
+  /* 靜音鈕：右上角，在「重新開始」左邊 */
+  #mute-corner-btn {
+    position: fixed; top: 10px; right: 104px; z-index: 80;
+    width: 30px; height: 30px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-panel); color: var(--text-muted);
+    border: 1px solid var(--border-soft); border-radius: 50%; cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  #mute-corner-btn:hover { color: var(--accent); border-color: var(--accent); }
+  #mute-corner-btn .ic-off { display: none; }
+  #mute-corner-btn.is-muted .ic-on { display: none; }
+  #mute-corner-btn.is-muted .ic-off { display: block; }
   @media (max-width:600px) {
     #restart-corner-btn { top: 8px; right: 8px; padding: 4px 9px; font-size: 11px; letter-spacing: 1px; }
+    #mute-corner-btn { top: 8px; right: 82px; width: 26px; height: 26px; }
   }
 
   /* 過場 */
@@ -364,6 +378,29 @@
   /* 說明頁（第二頁）改用遊戲內文的白天背景圖，文字才不會壓在首頁的插圖上 */
   #start-screen.on-page2 { background: var(--img-bg-day) center / cover no-repeat, var(--bg-deep); }
   .start-content { position: relative; }
+  /* 插圖頁：白色方塊（插圖還沒放入時的佔位），正方形、依視窗縮放 */
+  .title-illus {
+    display: block; margin: 0 auto;
+    width: min(88vw, calc(100vh - 210px), 1280px); aspect-ratio: 1 / 1; object-fit: contain;
+    background: #ffffff; border-radius: 6px; box-shadow: 0 4px 26px rgba(43,99,42,0.14);
+  }
+  .illus-continue {
+    position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+    padding: 10px 32px; font: inherit; font-size: 14px; letter-spacing: 4px;
+    color: var(--accent); background: rgba(253,252,247,0.92);
+    border: 1px solid rgba(43,99,42,0.45); border-radius: 999px; cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .illus-continue:hover { background: rgba(43,99,42,0.10); border-color: var(--accent); }
+  /* 內文裡的插圖（在文字中用 {{img:檔名}} 標記位置） */
+  .story-illus {
+    margin: 22px auto; width: 100%; max-width: 100%;
+    background: #ffffff; border: 1px solid var(--border-soft); border-radius: 6px;
+    overflow: hidden; box-shadow: 0 3px 18px rgba(43,99,42,0.12);
+  }
+  .story-illus img { display: block; width: 100%; height: auto; }
+  .story-illus.loading, .story-illus.missing { aspect-ratio: 1 / 1; }
+  .story-illus.loading img, .story-illus.missing img { display: none; }
   /* 標題頁的隱形圓形開始按鈕：位置與大小由 JS 依背景圖座標算出（見 TITLE_BTN） */
   #title-start-btn {
     position: absolute; padding: 0; margin: 0; border: 0; border-radius: 50%;
@@ -563,7 +600,14 @@
   <!-- 第一頁：標題頁。文字與插圖都已畫進背景圖，這裡只保留一顆「隱形」的圓形開始按鈕，
        位置對應背景圖上的按鈕圖案（座標設定見 TITLE_BTN）。網址後面加 #showbtn 可顯示紅色虛線框來對位。 -->
   <div class="start-page" id="start-page-1">
-    <button id="title-start-btn" type="button" aria-label="開始遊戲" onclick="showStartPage(2)"></button>
+    <button id="title-start-btn" type="button" aria-label="開始遊戲" onclick="showStartPage('illus')"></button>
+  </div>
+
+  <!-- 插圖頁：按下首頁開始鈕後出現，沿用遊戲內文的白天背景；按下底部「點擊繼續」才進入說明頁。
+       插圖檔：images/title-illustration（.png / .jpg / .jpeg / .webp 皆可，建議 1280×1280） -->
+  <div class="start-page" id="start-page-illus" style="display:none">
+    <img id="title-illus-img" class="title-illus" alt="">
+    <button class="illus-continue" type="button" onclick="showStartPage(2)">點擊繼續</button>
   </div>
 
   <!-- 第二頁：遊玩提醒 -->
@@ -603,6 +647,10 @@
 
 <div id="transition-overlay"></div>
 
+<button id="mute-corner-btn" type="button" aria-label="靜音" onclick="GameAudio.toggleMute()">
+  <svg class="ic-on" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+  <svg class="ic-off" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+</button>
 <button id="restart-corner-btn" onclick="askRestart()">重新開始</button>
 
 <div id="app">
@@ -706,6 +754,143 @@ const ENDINGS = {
 const CH13_PENALTY = 2;
 const CH13_BONUS   = 1;
 
+// ══════════════════════════════════════════════
+//  背景音樂 ＆ 靜音
+// ══════════════════════════════════════════════
+//  音檔請放在 index.html 同一層的 audio 資料夾（檔名小寫、副檔名 .mp3）：
+//    A  audio/bgm-a.mp3　日常：早晨進體育館、隊員閒聊、練習前準備、食堂、合宿日常、一般對話
+//    B  audio/bgm-b.mp3　比賽：練習賽開場、比分拉鋸、教練講解戰術、比賽前的心理準備
+//    C  audio/bgm-c.mp3　心事：放學後的單獨對話、角色心事、曖昧互動、吃醋後的沉默、告白前夕
+//  音檔還沒上傳時，遊戲照常進行，只是沒有聲音。
+const BGM_FILES  = { A:'audio/bgm-a.mp3', B:'audio/bgm-b.mp3', C:'audio/bgm-c.mp3' };
+const BGM_VOLUME = 0.5;     // 0～1
+const BGM_FADE_MS = 900;    // 換歌時的淡入淡出時間
+const SFX_FILES  = {};      // 之後加音效：{ 名稱: 'audio/xxx.mp3' }，用 GameAudio.playSfx('名稱') 播放
+
+// ── 配樂表：進入哪個章節／段落時，自動換成哪一首 ──
+//   鍵：章節 id；單人小節章節用「章節/角色」或「章節/common:前一位角色」（K 黑尾、B 木兔、A 赤葦、T 月島）
+//   沒列在表裡的章節，會延續目前正在播放的音樂。想換歌只要改這裡。
+const BGM_PLAN = {
+  // 第一天
+  ch1:'A', ch2:'A', ch3:'A', ch4:'A', ch5:'C',
+  ch6:'C', ch6_bath:'A', 'ch6/K':'C', 'ch6/B':'A', 'ch6/A':'C', 'ch6/epilogue':'A',
+  // 第二天
+  ch7:'A', ch7b:'C',
+  ch8:'B', ch8_p2:'A',
+  // 第二～三天
+  ch9:'A', ch9e:'C',
+  ch10:'B', ch10b:'B', ch10c:'B',
+  // 第四天
+  'ch11_solo/common:start':'A', 'ch11_solo/common:B':'A', 'ch11_solo/common:K':'A',
+  'ch11_solo/common:T':'A', 'ch11_solo/common:A':'A',
+  'ch11_solo/K':'C', 'ch11_solo/B':'A', 'ch11_solo/T':'C', 'ch11_solo/A':'C',
+  ch12:'B', ch12b:'B', ch12c:'B',
+  // 第五天
+  ch13:'A', ch13b:'C',
+  'ch14_solo/common:start':'C', 'ch14_solo/common:K':'C', 'ch14_solo/common:B':'B', 'ch14_solo/common:A':'A',
+  'ch14_solo/K':'C', 'ch14_solo/B':'C', 'ch14_solo/A':'C', 'ch14_solo/T':'C',
+  ch14b:'C',
+  // 第六天
+  'ch15_solo/common:start':'A', 'ch15_solo/common:K':'C',
+  'ch15_solo/A':'C', 'ch15_solo/B':'A', 'ch15_solo/T':'C', 'ch15_solo/K':'C',
+  ch16:'C',    // 第十六章各路線（ch16_XX）先沿用這首，之後可分開設定
+};
+
+const GameAudio = (function () {
+  const els = {};
+  let want = null, current = null, muted = false, primed = false;
+  try { muted = localStorage.getItem('gameMuted') === '1'; } catch (e) {}
+
+  function get(track) {
+    if (!els[track]) {
+      const a = new Audio(BGM_FILES[track]);
+      a.loop = true; a.preload = 'auto'; a.volume = 0;
+      els[track] = a;
+    }
+    return els[track];
+  }
+  function fadeTo(a, target, ms, done) {
+    clearInterval(a._fade);
+    const from = a.volume, steps = Math.max(1, Math.round(ms / 40));
+    let i = 0;
+    a._fade = setInterval(() => {
+      i++;
+      a.volume = Math.min(1, Math.max(0, from + (target - from) * i / steps));
+      if (i >= steps) { clearInterval(a._fade); if (done) done(); }
+    }, 40);
+  }
+  function stopTrack(track) {
+    const a = els[track]; if (!a) return;
+    fadeTo(a, 0, BGM_FADE_MS, () => a.pause());
+  }
+  function startTrack(track) {
+    const a = get(track);
+    const p = a.play();
+    const up = () => fadeTo(a, BGM_VOLUME, BGM_FADE_MS);
+    if (p && p.then) p.then(up).catch(() => { /* 還沒有使用者操作，或檔案不存在：之後再試 */ });
+    else up();
+  }
+  function apply() {
+    if (muted) { Object.keys(els).forEach(stopTrack); current = null; return; }
+    if (want === current) {
+      if (current && els[current] && els[current].paused) startTrack(current);   // 先前被瀏覽器擋住，現在重試
+      return;
+    }
+    if (current) stopTrack(current);
+    current = want;
+    if (current) startTrack(current);
+  }
+  function syncButton() {
+    const b = document.getElementById('mute-corner-btn');
+    if (!b) return;
+    b.classList.toggle('is-muted', muted);
+    b.setAttribute('aria-pressed', muted ? 'true' : 'false');
+    b.title = muted ? '開啟背景音樂與音效' : '關閉背景音樂與音效';
+  }
+  // 第一次點擊／按鍵：解鎖瀏覽器的自動播放限制（手機 Safari 需要），並重試被擋住的音樂
+  function unlock() {
+    if (!primed) {
+      primed = true;
+      Object.keys(BGM_FILES).forEach(t => {
+        if (t === current) return;
+        const a = get(t); a.muted = true;
+        const p = a.play();
+        if (p && p.then) p.then(() => { a.pause(); a.currentTime = 0; a.muted = false; }).catch(() => { a.muted = false; });
+        else a.muted = false;
+      });
+    }
+    apply();
+  }
+  window.addEventListener('pointerdown', unlock, { once: true });
+  window.addEventListener('keydown', unlock, { once: true });
+  window.addEventListener('DOMContentLoaded', syncButton);
+
+  return {
+    set(track) { want = track || null; apply(); },
+    forChapter(id) {
+      let t = BGM_PLAN[id];
+      if (t === undefined && /^ch16(_|$)/.test(id)) t = BGM_PLAN.ch16;
+      if (t !== undefined) this.set(t);
+    },
+    toggleMute() {
+      muted = !muted;
+      try { localStorage.setItem('gameMuted', muted ? '1' : '0'); } catch (e) {}
+      syncButton();
+      if (muted) apply(); else { current = null; apply(); }
+    },
+    isMuted() { return muted; },
+    playSfx(name) {
+      if (muted || !SFX_FILES[name]) return;
+      const a = new Audio(SFX_FILES[name]); a.volume = 0.8;
+      a.play().catch(() => {});
+    },
+    state() {
+      const a = current && els[current];
+      return { want, current, muted, playing: !!(a && !a.paused), volume: a ? Math.round(a.volume * 100) / 100 : 0 };
+    },
+  };
+})();
+
 // ── 第十四章結算之後的去向 ──
 // 第十五章寫好後，把 CH15_ENTRY 改成 'ch15'；第十六章六個版本寫好後，章節 id 依 CH16_ROUTES 命名即可自動接上。
 const CH15_ENTRY = 'ch15_solo';
@@ -796,6 +981,8 @@ const CHAPTERS = [
 
 音駒的隊長黑尾走來，忽然親暱的向妳打招呼。
 
+{{img:picture2-1}}
+
 妳左看看、右看看，確認旁邊沒有其他人。
 
 雖然墨黑的斜長瀏海掩蓋了部分的右眼，仍不減貓盯上獵物一般明亮的注視，畢竟連名字都喊出來了，很難視作他是在跟別人說話⋯⋯
@@ -844,6 +1031,8 @@ const CHAPTERS = [
 「欸、欸！妳看到了吧！」
 
 剛才還有點距離的灰色大腦袋，忽然出現在妳眼前，彷彿一隻貓頭鷹「噗」的展翅直朝妳撲了過來。
+
+{{img:picture3-1}}
 
 「咦？我？」妳嚇了一大跳，「呃⋯⋯木兔學長？」
 
@@ -1190,7 +1379,7 @@ const CHAPTERS = [
 
   // ── 第八章：前段（重逢） ──
   {
-    id:'ch8', label:'第八章　第三體育館的第二個夜晚', scene:'第二天夜晚・第三體育館',
+    id:'ch8', label:'第八章　三館裡的4+1', scene:'第二天夜晚・第三體育館',
     text:
 `或許是受到其他隊激勵，今晚的自主練習時間，森然的球員很團結的想要打幾場三對三，妳便留下來陪同及幫忙。
 
@@ -1212,7 +1401,7 @@ const CHAPTERS = [
 
   // ── 第八章：前段二（三館重逢） ──
   {
-    id:'ch8_p2', label:'第八章　第三體育館的第二個夜晚', scene:'第二天夜晚・第三體育館',
+    id:'ch8_p2', label:'第八章　三館裡的4+1', scene:'第二天夜晚・第三體育館',
     text:
 `響徹場館的擊球回音，反應了扣球力道有多嚇人，妳不難猜測出手的是木兔，從還沒進門就能聽到的嚷嚷聲看來，這球八成是給黑尾攔了下來。
 
@@ -1261,7 +1450,7 @@ const CHAPTERS = [
 
   // ── 第八章：中段一（赤葦追問） ──
   {
-    id:'ch8b', label:'第八章　第三體育館的第二個夜晚', scene:'第二天夜晚・第三體育館（稍後）',
+    id:'ch8b', label:'第八章　三館裡的4+1', scene:'第二天夜晚・第三體育館（稍後）',
     text:
 `赤葦的注視讓妳緊張起來，連忙回答：`,
     choices: [
@@ -1282,7 +1471,7 @@ const CHAPTERS = [
 
   // ── 第八章：中段二（黑尾鬧脾氣） ──
   {
-    id:'ch8c', label:'第八章　第三體育館的第二個夜晚', scene:'第二天夜晚・第三體育館（稍後）',
+    id:'ch8c', label:'第八章　三館裡的4+1', scene:'第二天夜晚・第三體育館（稍後）',
     text:
 `妳哈哈大笑，說：`,
     choices: [
@@ -1303,7 +1492,7 @@ const CHAPTERS = [
 
   // ── 第八章：收尾（木兔的演講） ──
   {
-    id:'ch8d', label:'第八章　第三體育館的第二個夜晚', scene:'第二天夜晚・第三體育館（稍後）',
+    id:'ch8d', label:'第八章　三館裡的4+1', scene:'第二天夜晚・第三體育館（稍後）',
     text:
 `妳驚叫一聲，笑得瞇起眼、縮起脖子，黑尾跟著開懷大笑。
 
@@ -2803,6 +2992,7 @@ function finalizeCh14(elim) {
 }
 
 async function dispatchChapter(id) {
+  GameAudio.forChapter(id);   // 進入章節時依配樂表換歌（單人小節章節由各段落自己設定）
   if (id === 'ending') { showEnding(); return; }
 
   // 第六章：進入三段輪流選人畫面
@@ -3170,6 +3360,7 @@ async function renderCh6Pick(initial = false) {
 async function runCh6Segment(key) {
   document.querySelectorAll('.choice-btn').forEach(b => b.style.pointerEvents = 'none');
   const seg = CH6_SEGMENTS[key];
+  if (BGM_PLAN['ch6/' + key]) GameAudio.set(BGM_PLAN['ch6/' + key]);
 
   // 過場
   const ov = document.getElementById('transition-overlay');
@@ -3265,6 +3456,7 @@ async function handleCh6SegmentChoice(e, key, choice) {
 }
 
 async function renderCh6Epilogue() {
+  if (BGM_PLAN['ch6/epilogue']) GameAudio.set(BGM_PLAN['ch6/epilogue']);
   state.currentChapterId = 'ch6_bath';
   document.getElementById('chapter-label').textContent = CH6_EPILOGUE.label;
   document.getElementById('scene-label').textContent   = CH6_EPILOGUE.scene;
@@ -3565,6 +3757,7 @@ async function playMultiSoloQueue(multiSoloId, pos) {
   progress.playhead = { pos };
   state.currentChapterId = multiSoloId;
   saveState();
+  if (step.bgm) GameAudio.set(step.bgm);   // 依配樂表：每個段落／角色各自的音樂
 
   document.getElementById('chapter-label').textContent = def.label;
   document.getElementById('scene-label').textContent   = step.scene || def.scene || '';
@@ -4733,7 +4926,7 @@ MULTI_SOLO.ch15_solo = {
   "T": [
    {
     "scene": "第六天午後・體育館",
-    "text": "今天對上烏野的練習賽，森然竟然以毫釐之差輸了。\n\n小鹿野扼腕得大喊大叫，但還是只能接受現實，吆喝著領森然的球員們到體育館後方進行跑坡懲罰。\n\n妳跟真子交換了一個眼神，苦笑著幫忙收拾場地。\n\n烏野的人還有好幾個躺在球場上，喊著真難得有一次不用爬坡。\n\n妳無法自制的搜尋月島，很快就看到他已經坐在牆邊擦汗喝水。\n\n月島似乎感受到妳的目光，暫停動作、轉向妳的方向。\n\n妳對他微笑揮手，他卻扯起嘴角，露出「哎呀哎呀真不好意思我們贏了這一場」的表情。\n\n雖說勝負乃兵家常事，這會兒妳可真是管不了什麼運動家風度，邁開大步就氣噗噗的往月島走去。\n\n「月島君！你是什麼意思！」\n\n「森學姊午安。」月島淡然，「我不知道妳指的是什麼，我一句話也沒說。」\n\n「你的表情可是什麼都說了喔！」妳扠腰仰視著他。\n\n月島噗哧笑出聲，「什麼都不用說，就可以讓森學姊來到我面前，真是方便。」\n\n他這一笑，本就不是真心動怒的妳，氣焰頓消，轉而自覺丟臉。\n\n「我、我是要來跟你說⋯⋯最後一球的攔網、很漂亮。」\n\n雖然不同隊伍，但稱讚月島一點也不會讓妳不甘心，畢竟妳見證了他這幾日的努力與成長。\n\n月島卻未馬上回應，只是默默的摘下眼睛擦拭，重新戴回，再彎腰湊近妳的臉前。\n\n「嗯⋯⋯很開心呢，獲得森學姊的稱讚。」\n\n妳",
+    "text": "今天對上烏野的練習賽，森然竟然以毫釐之差輸了。\n\n小鹿野扼腕得大喊大叫，但還是只能接受現實，吆喝著領森然的球員們到體育館後方進行跑坡懲罰。\n\n妳跟真子交換了一個眼神，苦笑著幫忙收拾場地。\n\n烏野的人還有好幾個躺在球場上，喊著真難得有一次不用爬坡。\n\n妳無法自制的搜尋月島，很快就看到他已經靠在牆邊擦汗喝水。\n\n月島似乎感受到妳的目光，暫停動作、轉向妳的方向。\n\n妳對他微笑揮手，他卻扯起嘴角，露出「哎呀哎呀真不好意思我們贏了這一場」的表情。\n\n雖說勝負乃兵家常事，這會兒妳可真是管不了什麼運動家風度，邁開大步就氣噗噗的往月島走去。\n\n「月島君！你是什麼意思！」\n\n「森學姊午安。」月島淡然，「我不知道妳指的是什麼，我一句話也沒說。」\n\n「你的表情可是什麼都說了喔！」妳扠腰仰視著他。\n\n月島噗哧笑出聲，「什麼都不用說，就可以讓森學姊來到我面前，真是方便。」\n\n他這一笑，本就不是真心動怒的妳，氣焰頓消，轉而自覺丟臉。\n\n「我、我是要來跟你說⋯⋯最後一球的攔網、很漂亮。」\n\n雖然不同隊伍，但稱讚月島一點也不會讓妳不甘心，畢竟妳見證了他這幾日的努力與成長。\n\n月島卻未馬上回應，只是默默的摘下眼睛擦拭，重新戴回，再彎腰湊近妳的臉前。\n\n「嗯⋯⋯很開心呢，獲得森學姊的稱讚。」\n\n妳",
     "choices": [
      {
       "text": "把下巴一揚，「這樣啊！月島君喜歡聽稱讚的話，要我說幾次都可以喔！」",
@@ -4823,6 +5016,19 @@ MULTI_SOLO.ch15_solo = {
  }
 };
 
+// ── 把配樂表套到單人小節的各個段落（見 BGM_PLAN）──
+(function applyBgmToMultiSolo() {
+  ['ch11_solo', 'ch14_solo', 'ch15_solo'].forEach(id => {
+    const def = MULTI_SOLO[id];
+    (def.common || []).forEach(c => c.steps.forEach(st => {
+      const t = BGM_PLAN[id + '/common:' + c.after]; if (t) st.bgm = t;
+    }));
+    Object.keys(def.events).forEach(ch => def.events[ch].forEach(st => {
+      const t = BGM_PLAN[id + '/' + ch]; if (t) st.bgm = t;
+    }));
+  });
+})();
+
 // ══════════════════════════════════════════════
 //  結局判定
 // ══════════════════════════════════════════════
@@ -4905,6 +5111,72 @@ function getSaveChapterLabel() {
   return ch?.label ?? '最終章';
 }
 
+// ══════════════════════════════════════════════
+//  插圖
+//   · 放在 images 資料夾，檔名不含副檔名；程式會依序嘗試 .png .jpg .jpeg .webp
+//   · 內文裡寫 {{img:檔名}}（獨立一行）就會在該位置顯示插圖，例如 {{img:picture2-1}}
+//   · 檔案還沒放入時，顯示白色方塊佔位
+// ══════════════════════════════════════════════
+const ILLUS_EXTS = ['png', 'jpg', 'jpeg', 'webp'];
+const _illusCache = {};
+function loadIllustration(name) {
+  if (_illusCache[name]) return _illusCache[name];
+  _illusCache[name] = new Promise(resolve => {
+    let i = 0;
+    const tryNext = () => {
+      if (i >= ILLUS_EXTS.length) return resolve(null);
+      const url = 'images/' + name + '.' + ILLUS_EXTS[i++];
+      const im = new Image();
+      im.onload = () => resolve(url);
+      im.onerror = tryNext;
+      im.src = url;
+    };
+    tryNext();
+  });
+  return _illusCache[name];
+}
+function showTitleIllustration() {
+  const img = document.getElementById('title-illus-img');
+  if (!img || img.getAttribute('src')) return;
+  loadIllustration('title-illustration').then(url => { if (url) img.src = url; });
+}
+function makeIllustration(name) {
+  const fig = document.createElement('figure');
+  fig.className = 'story-illus loading';
+  const img = document.createElement('img');
+  img.alt = '';
+  fig.appendChild(img);
+  loadIllustration(name).then(url => {
+    if (url) { img.onload = () => fig.classList.remove('loading'); img.src = url; }
+    else { fig.classList.remove('loading'); fig.classList.add('missing'); }
+  });
+  return fig;
+}
+const ILLUS_MARK = /\{\{img:([A-Za-z0-9_-]+)\}\}/;
+function processIllustrations() {
+  const root = document.getElementById('story-text');
+  if (!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const hits = [];
+  while (walker.nextNode()) if (ILLUS_MARK.test(walker.currentNode.nodeValue)) hits.push(walker.currentNode);
+  hits.forEach(node => {
+    const parts = node.nodeValue.split(/\{\{img:([A-Za-z0-9_-]+)\}\}/);   // [文字, 檔名, 文字, 檔名, …]
+    const frag = document.createDocumentFragment();
+    parts.forEach((p, i) => {
+      if (i % 2 === 1) { frag.appendChild(makeIllustration(p)); return; }
+      let t = p;
+      if (i > 0) t = t.replace(/^\n+/, '');                 // 圖片前後的空行由圖片的外距取代
+      if (i < parts.length - 1) t = t.replace(/\n+$/, '');
+      if (t) frag.appendChild(document.createTextNode(t));
+    });
+    node.parentNode.replaceChild(frag, node);
+  });
+}
+window.addEventListener('DOMContentLoaded', () => {
+  const root = document.getElementById('story-text');
+  if (root) new MutationObserver(processIllustrations).observe(root, { childList: true, subtree: true, characterData: true });
+});
+
 // ── 標題頁開始按鈕的位置（座標以「首頁圖本身的像素」計算，圖片換尺寸也不用改程式）──
 //   橫式首頁圖 images/title-landscape.jpg：圓心 (1286, 933)、半徑 42
 //   直式首頁圖 images/title-portrait.jpg ：圓心 (561, 1247)、半徑 56
@@ -4945,9 +5217,10 @@ function positionTitleButton() {
 window.addEventListener('keydown', e => {
   const sc = document.getElementById('start-screen');
   const p1 = document.getElementById('start-page-1');
-  if (sc && sc.style.display !== 'none' && p1 && p1.style.display !== 'none' && (e.key === 'Enter' || e.key === ' ')) {
-    e.preventDefault();
-    showStartPage(2);
+  const pi = document.getElementById('start-page-illus');
+  if (sc && sc.style.display !== 'none' && (e.key === 'Enter' || e.key === ' ')) {
+    if (p1 && p1.style.display !== 'none') { e.preventDefault(); showStartPage('illus'); }
+    else if (pi && pi.style.display !== 'none') { e.preventDefault(); showStartPage(2); }
   }
 });
 window.addEventListener('resize', positionTitleButton);
@@ -4962,6 +5235,15 @@ if (/showbtn|checkimg/.test(location.hash + location.search)) {
     + 'border:1px solid #999;border-radius:6px;padding:8px 12px;font:12px/1.7 monospace;color:#222;pointer-events:none;';
   box.innerHTML = '<b>背景圖檢查</b><br>';
   document.body.appendChild(box);
+  ['title-illustration', 'picture2-1', 'picture3-1'].forEach(name => {
+    const line = document.createElement('div');
+    line.textContent = '… images/' + name;
+    box.appendChild(line);
+    loadIllustration(name).then(url => {
+      line.textContent = url ? '✓ ' + url : '✗ images/' + name + '（.png/.jpg/.jpeg/.webp）找不到';
+      line.style.color = url ? '#2b632a' : '#c0392b';
+    });
+  });
   ['title-landscape', 'title-portrait', 'bg-day-landscape', 'bg-day-portrait', 'bg-night-landscape', 'bg-night-portrait'].forEach(name => {
     const line = document.createElement('div');
     const src = 'images/' + name + '.jpg';
@@ -4976,9 +5258,12 @@ if (/showbtn|checkimg/.test(location.hash + location.search)) {
 
 function showStartPage(n) {
   document.getElementById('start-page-1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('start-page-illus').style.display = n === 'illus' ? 'block' : 'none';
   document.getElementById('start-page-2').style.display = n === 2 ? 'block' : 'none';
-  document.getElementById('start-screen').classList.toggle('on-page2', n === 2);
+  // 插圖頁與說明頁都沿用遊戲內文的白天背景；只有首頁用首頁專用圖
+  document.getElementById('start-screen').classList.toggle('on-page2', n !== 1);
   if (n === 1) positionTitleButton();
+  if (n === 'illus') showTitleIllustration();
 }
 
 function showStartScreen() {
@@ -5125,7 +5410,7 @@ const DEBUG_JUMP_TARGETS = [
   { id:'ch5',       label:'第五章　月島螢' },
   { id:'ch6',       label:'第六章　第三體育館的第一個夜晚' },
   { id:'ch7',       label:'第七章　西瓜' },
-  { id:'ch8',       label:'第八章　第三體育館的第二個夜晚' },
+  { id:'ch8',       label:'第八章　三館裡的4+1' },
   { id:'ch9',       label:'第九章　紅豆飯' },
   { id:'ch10',      label:'第十章　三對三' },
   { id:'ch11_solo', label:'第十一章　病假（含同分問答，依目前分數重新排名）' },
