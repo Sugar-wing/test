@@ -794,6 +794,7 @@ const BGM_PLAN = {
   'ch15_solo/common:start':'A', 'ch15_solo/common:K':'C',
   'ch15_solo/A':'C', 'ch15_solo/B':'A', 'ch15_solo/T':'C', 'ch15_solo/K':'C',
   ch16:'C',    // 第十六章各路線（ch16_XX）先沿用這首，之後可分開設定
+  'ch16_BK/common:start':'C', 'ch16_BK/K':'C', 'ch16_BK/B':'C',
 };
 
 const GameAudio = (function () {
@@ -903,6 +904,10 @@ const CH16_ROUTES = {
   AT: { id:'ch16_AT', name:'赤葦、月島路線' },
   KT: { id:'ch16_KT', name:'黑尾、月島路線' },
 };
+
+// ── 第十七章：各角色專屬大結局 ──
+// 第十六章結算後，最高分者進入他的大結局（章節 id 見下表；尚未寫好的先接結局畫面）
+const CH17_ROUTES = { K:'ch17_K', B:'ch17_B', A:'ch17_A', T:'ch17_T' };   // 黑尾、木兔、赤葦、月島
 
 // ── 背景圖的白天／夜晚：列在這裡的章節用夜晚圖，其餘用白天圖 ──
 const BG_NIGHT_CHAPTERS = [6, 8, 10, 12, 14, 16];
@@ -2752,6 +2757,8 @@ const state = {
   ch14Elim: null,    // 第十四章結算淘汰的第三名角色 id
   skipSolo15: null,  // 第十五章單人小節要跳過的角色 id 陣列（第十四章被跳過者＋第三名）
   ch16Route: null,   // 第十六章路線：留下的兩人 id（字母排序），例如 'BK'
+  ch16Pick: null,    // 第十六章最後二選一指名題選到的角色 id（總分同分時由他勝出）
+  ch17Winner: null,  // 第十六章結算後，進入第十七章大結局的角色 id
   inline: null,      // 同頁連續選擇（type:'inline'）的進度，例如 { id:'ch12b', picks:[0,1] }
   savedAt: null,     // ISO 時間戳
 };
@@ -2778,6 +2785,8 @@ function loadState() {
       if (state.ch14Elim === undefined) state.ch14Elim = null;
       if (state.skipSolo15 === undefined) state.skipSolo15 = null;
       if (state.ch16Route === undefined) state.ch16Route = null;
+      if (state.ch16Pick === undefined) state.ch16Pick = null;
+      if (state.ch17Winner === undefined) state.ch17Winner = null;
       if (!state.currentChapterId) state.currentChapterId = 'ch1';
       if (!state.titleShown && state.currentChapterId !== 'ch1') {
         // 舊存檔沒有這個欄位：把目前所在章視為已顯示過標題頁，避免讀檔後在章節中間又跳出一次
@@ -2806,6 +2815,8 @@ function clearState() {
   state.ch14Elim = null;
   state.skipSolo15 = null;
   state.ch16Route = null;
+  state.ch16Pick = null;
+  state.ch17Winner = null;
   state.savedAt = null;
 }
 
@@ -2836,7 +2847,7 @@ const CHAPTER_DAY = {
   ch10:3, ch10b:3, ch10c:3,
   ch11:4, ch11_solo:4, ch12:4, ch12b:4, ch12c:4,
   ch13:5, ch13b:5, ch14:5, ch14_solo:5,
-  ch15:6, ch15_solo:6, ch16:6,
+  ch15:6, ch15_solo:6, ch16:6, ch16_BK:6,
   ch17:7,
 };
 
@@ -2965,6 +2976,15 @@ async function handleChoice(e, choice) {
 // dispatchChapter：純粹依 id 決定要跑哪一種畫面，不含轉場動畫。
 // transitTo（選項點擊後）與 startContinue（讀檔恢復）都共用這個入口，
 // 確保「存檔中斷在哪、下次就從哪接回去」對所有章節類型都成立。
+// 第十六章結算：留下的兩人中總分較高者；同分時，由最後二選一指名題選到的人勝出
+function resolveCh16Winner() {
+  let kept = (state.ch16Route || '').split('').filter(Boolean);
+  if (kept.length !== 2) kept = ['K', 'B', 'A', 'T'].sort((a, b) => state.affinity[b] - state.affinity[a]).slice(0, 2);
+  const [a, b] = kept;
+  if (state.affinity[a] !== state.affinity[b]) return state.affinity[a] > state.affinity[b] ? a : b;
+  return kept.includes(state.ch16Pick) ? state.ch16Pick : a;
+}
+
 // 第十四章結算：回傳 { elim: 角色id } 或 { group: [候選角色id…] }（需要加賽題）
 function resolveCh14Elimination() {
   const ALL = ['K', 'B', 'A', 'T'];
@@ -3054,6 +3074,20 @@ async function dispatchChapter(id) {
   }
   if (id === 'ch14b' && (!state.ch14TieGroup || !state.ch14TieGroup.length)) {
     await dispatchChapter(CH15_ENTRY);
+    return;
+  }
+  // 第十六章結束：結算，最高分者進入第十七章該角色的大結局
+  if (id === 'ch16_done') {
+    state.ch17Winner = resolveCh16Winner();
+    state.inline = null;
+    saveState();
+    await dispatchChapter('ch17');
+    return;
+  }
+  if (id === 'ch17') {
+    const target = CH17_ROUTES[state.ch17Winner];
+    const exists = target && (CHAPTERS.some(c => c.id === target) || MULTI_SOLO[target]);
+    await dispatchChapter(exists ? target : 'ending');
     return;
   }
   // 第十六章：依留下的兩人進入對應路線（章節 id 見 CH16_ROUTES；尚未寫好的版本先接結局）
@@ -3552,10 +3586,12 @@ async function runMultiSolo(multiSoloId) {
   const progress = state.multiSolo[multiSoloId];
 
   // 固定順序＋跳過指定角色的章節（第十四章）：不需要同分判定，直接定案
-  if (def.skipState) {
+  if (def.skipState || def.fixedOrder) {
     if (!progress.finalOrder) {
-      const skip = [].concat(state[def.skipState] || []);   // 單一角色或陣列都可以
-      progress.finalOrder = (def.charOrder || CHAR_ORDER).filter(c => !skip.includes(c));
+      const skip = [].concat((def.skipState && state[def.skipState]) || []);   // 單一角色或陣列都可以
+      progress.finalOrder = def.fixedOrder
+        ? def.fixedOrder.slice()                                  // 第十六章各路線：留下的兩人固定
+        : (def.charOrder || CHAR_ORDER).filter(c => !skip.includes(c));
       progress.playhead = { pos: 0 };
       saveState();
     }
@@ -3739,6 +3775,33 @@ function buildMultiSoloPlaylist(multiSoloId) {
 }
 
 // ── 依播放清單逐步播放，全部播完後前進到 nextChapter ──
+// 在選項區顯示某一步驟的選項按鈕（也用於「正文之後直接接著出現下一題」的串接）
+function showMultiSoloChoiceButtons(multiSoloId, pos, step) {
+  const area = document.getElementById('choices-area');
+  area.innerHTML = '';
+  step.choices.forEach((choice, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    const num = document.createElement('span');
+    num.className = 'choice-num';
+    num.textContent = i + 1;
+    const txt = document.createElement('span');
+    txt.textContent = choice.text;
+    btn.appendChild(num);
+    btn.appendChild(txt);
+    btn.addEventListener('click', (e) => handleMultiSoloChoice(e, multiSoloId, pos, choice));
+    area.appendChild(btn);
+
+    btn.style.opacity = '0';
+    btn.style.transform = 'translateX(-16px)';
+    setTimeout(() => {
+      btn.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+      btn.style.opacity = '1';
+      btn.style.transform = 'translateX(0)';
+    }, 250 + i * 110);
+  });
+}
+
 async function playMultiSoloQueue(multiSoloId, pos) {
   const def = MULTI_SOLO[multiSoloId];
   const progress = state.multiSolo[multiSoloId];
@@ -3770,27 +3833,7 @@ async function playMultiSoloQueue(multiSoloId, pos) {
   const hasChoices = step.choices && step.choices.length > 0;
 
   if (hasChoices) {
-    step.choices.forEach((choice, i) => {
-      const btn = document.createElement('button');
-      btn.className = 'choice-btn';
-      const num = document.createElement('span');
-      num.className = 'choice-num';
-      num.textContent = i + 1;
-      const txt = document.createElement('span');
-      txt.textContent = choice.text;
-      btn.appendChild(num);
-      btn.appendChild(txt);
-      btn.addEventListener('click', (e) => handleMultiSoloChoice(e, multiSoloId, pos, choice));
-      area.appendChild(btn);
-
-      btn.style.opacity = '0';
-      btn.style.transform = 'translateX(-16px)';
-      setTimeout(() => {
-        btn.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
-        btn.style.opacity = '1';
-        btn.style.transform = 'translateX(0)';
-      }, 250 + i * 110);
-    });
+    showMultiSoloChoiceButtons(multiSoloId, pos, step);
   } else {
     // 純正文步驟（沒有選項）：點擊繼續，前進到下一步
     const hint = document.createElement('div');
@@ -3822,6 +3865,7 @@ async function handleMultiSoloChoice(e, multiSoloId, pos, choice) {
       state.affinity[t.id] += t.val;
       (state.soloGains[multiSoloId] = state.soloGains[multiSoloId] || {})[t.id] = ((state.soloGains[multiSoloId] || {})[t.id] || 0) + t.val;
     });
+    if (choice.sets) Object.assign(state, choice.sets);
     saveState();
 
     const area = document.getElementById('choices-area');
@@ -3843,6 +3887,13 @@ async function handleMultiSoloChoice(e, multiSoloId, pos, choice) {
     document.getElementById('story-text').appendChild(span);
     window.scrollTo({ top: keepY, left: 0, behavior: 'instant' });
     await sleep(500);
+
+    // 併進來的下一步本身也是選擇題（例如木兔那段結尾的二選一指名題）→ 同頁直接出現它的選項
+    if (merged && merged.choices && merged.choices.length) {
+      area.style.minHeight = '';
+      showMultiSoloChoiceButtons(multiSoloId, pos + 1, merged);
+      return;
+    }
 
     const hint = document.createElement('div');
     hint.className = 'continue-hint';
@@ -3868,6 +3919,7 @@ async function handleMultiSoloChoice(e, multiSoloId, pos, choice) {
       state.affinity[t.id] += t.val;
       (state.soloGains[multiSoloId] = state.soloGains[multiSoloId] || {})[t.id] = ((state.soloGains[multiSoloId] || {})[t.id] || 0) + t.val;
     });
+    if (choice.sets) Object.assign(state, choice.sets);
   saveState();
 
   await sleep(400);
@@ -5016,9 +5068,151 @@ MULTI_SOLO.ch15_solo = {
  }
 };
 
+
+// ══════════════════════════════════════════════
+//  第十六章：最後一夜 —— 黑尾、木兔路線（ch16_BK）
+//    留下的兩人是黑尾、木兔時進入。前面的共同正文（COMMON_START）六條路線都一樣。
+//    黑尾：選項接在上一行後面（inline）→ 回饋 → 〔正文接續〕同頁
+//    木兔：選項自成一行（break）→ 回饋 → 〔正文接續〕同頁 → 最後二選一指名題（各 +3，自成一行）→ 結尾同頁
+//    指名題選到的人記在 state.ch16Pick，兩人總分同分時，由他進入第十七章的大結局
+// ══════════════════════════════════════════════
+MULTI_SOLO.ch16_BK = {
+ "id": "ch16_BK",
+ "label": "第十六章　最後一夜",
+ "scene": "第六天夜晚・第二體育館",
+ "route": "黑尾、木兔路線",
+ "fixedOrder": [
+  "K",
+  "B"
+ ],
+ "charOrder": [
+  "K",
+  "B"
+ ],
+ "nextChapter": "ch16_done",
+ "common": [
+  {
+   "after": "start",
+   "steps": [
+    {
+     "scene": "第六天夜晚・第二體育館",
+     "text": "是合宿的最後一個晚上了。\n\n前面五個晚上都往第三體育館跑，偏偏這一晚，妳沒能直接過去。\n\n森然的成員，或許是想在明天最後的一輪練習賽扳回一成，互相激勵今晚要認真特訓，還來拜託妳和真子一同協助。\n\n作為經理，妳責無旁貸。\n\n然而幾日下來，妳早已自詡為三館夜間組合的經理，這時留在第二體育館，心中反而有難以除卻的不安。\n\n妳強迫自己專心陪森然夥伴練習，不讓自己的思緒飄往第三體育館⋯⋯以及白天和那兩人許下的約定。\n\n妳真的真的不能想，一想到心跳就會狂跳不已。\n\n期待、興奮、緊張⋯⋯以及對於兩個約定可能發生碰撞的焦慮。",
+     "choices": []
+    }
+   ]
+  }
+ ],
+ "events": {
+  "K": [
+   {
+    "scene": "第六天夜晚・第三體育館",
+    "text": "妳趕上了三館自主練習的尾聲。\n\n妳一邊奔跑、一邊心想，沒想過妳會有感謝小鹿野大發慈悲的一天。\n\n妳跑進第三體育館，氣喘吁吁的向大家打招呼。\n\n大家看到妳都顯得驚喜又疑惑，紛紛問著妳是不是發生了什麼事，聽完妳的解釋後，自然沒人多說什麼。\n\n妳偷偷瞄向黑尾，發現他露出鬆了一口氣的表情。\n\n「這場快打完了。」黑尾指著時鐘宣布，「時間也差不多了。」\n\n因為已經到比賽末端，妳只替他們做最後的計分，沒有進一步詳細記錄。\n\n比賽結束，梟隊竟然在最後關頭破發又反擊，贏下了這一場。\n\n最後一分尤其精彩，木兔刁鑽的直線扣球閃過了貓隊的三人攔網，雖然黑尾判斷快速而正確，球仍是從灰羽手邊穿過。\n\n木兔得意洋洋的嘿嘿笑，對黑尾扮個鬼臉，又對場邊的妳張臂大喊：「看到了嗎！森！」\n\n妳豎起大拇指，「很厲害喔，木兔學長！」\n\n黑尾回瞪木兔，又唸了灰羽幾句後，不甘心的走下場，來到妳身旁。\n\n「可惡⋯⋯本來可以贏的！」\n\n妳像兄弟一樣的拍拍他的背，「只差一點點啦，黑尾學長也很厲害啊。」\n\n黑尾瞟向妳，「如果不是千璃醬⋯⋯就可以贏了。」\n\n「我？」妳困惑的指著自己鼻子，「黑尾學長的意思是我帶衰嗎？」\n\n「不是啦不是啦⋯⋯唉，真傷腦筋。」\n\n黑尾慢條斯理的喝了口水、又用前臂抹去瀏海末端的汗水，「那個，千璃醬，我們去一下外面好嗎？」\n\n「啊？嗯⋯⋯好。」\n\n妳期期艾艾的跟在黑尾後面走著，視野只有他穿著黑衣、高大寬闊的背。\n\n「嗯？幹嘛躲在後面。」\n\n黑尾轉身，按住妳的頭頂，一施勁便把妳拉到身邊。\n\n你們就著這個姿勢，走出三館門外、走到廊道外的泥地上。\n\n月色皎潔，不需走廊日光燈也能映出黑尾寵溺的神情。\n\n「嗯⋯⋯」妳故作鎮定迎上他的凝視，「黑尾學長是要找我算帳嗎？」\n\n「我是說真的，都是千璃醬的出現害我分心，結果居然被小不點破發⋯⋯」黑尾撇撇唇，「我一直在想，千璃醬難道是為了避開我，晚上才沒來⋯⋯好不容易摒除雜念、專心練球，突然看到妳⋯⋯」\n\n妳噗嗤笑出聲，「黑尾學長也想太多了吧！」\n\n「有什麼辦法？」黑尾兩手一攤，「我就是那麼在意妳啊！」\n\n「黑尾學⋯⋯長？」妳傻愣愣的看著他，咀嚼這句話背後的意義。\n\n「我在意到這裡會痛啊⋯⋯千璃醬。」黑尾抓住胸口的衣服，低聲呢喃，「想到妳可能生氣、可能不想理我，想到我們或許不會再見面⋯⋯」\n\n妳按住自己的心口，緩緩的說：",
+    "choices": [
+     {
+      "text": "「我也很在意黑尾學長⋯⋯」",
+      "targets": [
+       {
+        "id": "K",
+        "val": 0
+       }
+      ],
+      "feedback": "黑尾稍微瞪大眼睛，這回輪到他細品妳話中的意涵。\n\n「我沒有生氣、也沒有不想理你。」妳像和小孩解釋遊戲規則一樣耐心說明，「正是因為很在意⋯⋯所以才要小心翼翼⋯⋯你說是嗎？」\n\n「是啊，我又何嘗不是如此。」黑尾嘴角浮現微笑，柔情在笑意間流動著，「聽到千璃醬這麼說，我很開心。」\n\n妳回以真誠的笑容，「如果有好好把心情傳達給黑尾學長，那就太好了。」\n\n黑尾輕觸妳仍在胸前的手背，再輕拍自己的胸口，「這裡，收到了。」\n\n妳則敲敲自己的腦袋，「黑尾學長想說的話，我也都聽進去、記在這裡了。」"
+     },
+     {
+      "text": "「我也想再跟黑尾學長見面⋯⋯」",
+      "targets": [
+       {
+        "id": "K",
+        "val": 2
+       }
+      ],
+      "feedback": "黑尾的表情又驚又喜，「真、真的嗎？」\n\n妳赧然頷首，「如果未來都不能見面⋯⋯我也會很難過的。」\n\n黑尾身側的雙臂抽了一抽、緩緩抬起，懸在空中好一會兒。\n\n妳好奇的看著他，黑尾的手終於繼續動作，卻只是反掌按住自己的前額。\n\n「啊⋯⋯可惡，好想現在就把千璃醬抱進懷裡。」\n\n黑尾痛苦的緊閉雙眼，妳的腳動了動，忽然能明白黑尾剛才是什麼感覺。\n\n妳必須控制自己的腳不要向前跨，否則會直接撲進他懷裡。"
+     }
+    ],
+    "join": "inline",
+    "mergeNext": true
+   },
+   {
+    "scene": "第六天夜晚・第三體育館",
+    "text": "「不、不⋯⋯」黑尾彷彿在喃喃自語，「合宿結束之前，我一定要把最重要的話說出來。」\n\n「咦？黑尾學長⋯⋯」妳意識到他接下來可能要說的話，頓時一陣慌亂。\n\n黑尾伸出手臂，按住妳的雙肩，俯身望進妳的雙眼，似乎要將所有的決心與情感，藉由這道凝視傳送過去。\n\n「我喜歡妳，千璃醬。」\n\n被他緊緊按住的肩縮得更緊，妳試著組織言詞，卻只是迷失在黑尾的眼底。\n\n妳滿腦子想的都是——這對狹長的貓眼，怎能同時漾著脈脈情意、又蘊含強大的壓迫？\n\n「欸？黑尾？」\n\n你倆嚇得跳起來，黑尾也鬆開了手。\n\n在走廊上發話的是音駒的夜久，身旁跟著副隊長海。\n\n「這麼晚了，你在那裡幹嘛？看起來好像不良份子喔。」夜久定睛一看，「是森然的經理吧？黑尾是在威脅妳給他錢嗎？」\n\n「不、不是⋯⋯」妳微弱的聲音幾乎被蟬鳴蓋過。\n\n「自主練習，利耶夫也在那裡面。」黑尾用下巴比了比三館的門。\n\n「什麼？這傢伙躲開我，原來在這裡嗎！」\n\n夜久往三館大步邁去，海好奇的看了妳和黑尾一眼，隨後跟上。\n\n黑尾嘆口氣，重新轉向妳，「抱歉，千璃醬⋯⋯」\n\n三館的方向傳來灰羽意義不明的淒厲叫聲。\n\n黑尾嘆了更重的一口氣，「我最好進去看一下。」\n\n「沒問題的，去吧。」妳尋回了自己的嗓子，但還有點顫抖。\n\n黑尾猶豫的走了兩三步，回頭看向妳，「千璃醬不進去裡面嗎？」\n\n「會的！」妳的聲音尖得異常，「我⋯⋯再吹一下風，等會就進去了。」\n\n黑尾沒說話，只是面露擔憂的瞧著妳。\n\n「我都聽見了，黑尾學長。」妳試圖找到正常的音調，「我會很珍惜的⋯⋯好好思考怎麼回應學長的心意。」\n\n「好。」黑尾揉揉妳的頭，這次的動作自然不扭捏，不曉得是不是將心意說出口，他反而輕鬆不少，「小心外面蚊子多。」\n\n黑尾沒有再回頭，妳目送他走進第三體育館後，才蹣跚從泥地走回有騎樓與照明的走廊。",
+    "choices": []
+   }
+  ],
+  "B": [
+   {
+    "scene": "第六天夜晚・走廊",
+    "text": "——剛才那是怎麼一回事啊！\n\n妳靠在牆上喘氣，心裡大聲尖叫。\n\n「冷靜、千璃泱！」妳搓揉自己的臉頰，「冷靜冷靜冷靜——」\n\n「森？」\n\n「啊啊啊啊——」\n\n妳被突如其來的叫喚和牆角冒出的大腦袋嚇了一大跳。\n\n「木兔學長！」妳驚魂未定的搥了對方一拳，「你幹嘛！」\n\n「找妳啊。」木兔的反應比被蚊子叮還不痛不癢，逕自挪到妳身邊，「妳跟黑尾一起出去了，可是只有他回來。」\n\n妳側身，讓一邊肩頭頂在牆上，好以正臉面對手肘撐著牆、望向妳的木兔。\n\n「黑尾學長要先處理自家隊裡的事嘛。」\n\n「是這樣喔。」木兔噘了噘嘴，像在尋找奶嘴的小嬰兒，「我以為妳是留在外面等我。」\n\n妳也答應了木兔今晚練習後要留下來——這事妳當然沒忘記。\n\n「我們有說好，我記得。」妳如此回應，認為自己沒說謊。\n\n「嘿嘿，我就知道！」\n\n木兔拍拍妳沒有靠牆的那側肩頭，那兒重新染上了木兔的溫度，而抵著牆的那側，似乎還壓著稍早另一人手掌的餘溫⋯⋯這讓妳忐忑不已。\n\n「抱歉，木兔學長，本來說晚上會來看你們練球的⋯⋯」\n\n「喔，我有猜到妳去哪裡了，所以我不擔心。」木兔一歪頭，讓腦袋撐在肘撐牆的那側手掌上，「畢竟妳是森然的經理嘛。」\n\n妳露出苦笑，同時也有幾分感動，木兔總在意外的時刻展現他通情達理的一面。\n\n「所以啊，因為妳是森然的經理，我今晚想再多看妳一下。」\n\n妳等著木兔往下說，但他沒有，就這麼撐著頭、盯著妳瞧。\n\n就算是鐵打的臉皮也會被他看穿吧⋯⋯才幾秒鐘，妳就打算投降了。\n\n「我不是很明白你的意思，木兔學長。」\n\n「不明白什麼？」\n\n「⋯⋯我是森然的人，跟今晚⋯⋯有什麼關係？」\n\n「喔，因為妳在森然、我在梟谷，接下來就不能像這禮拜一樣天天見面了啊。」木兔露出得意神情，但只維持了兩秒，便逐漸僵硬，「奇怪⋯⋯明明講出這麼聰明的話，我好像一點也開心不起來啊。」\n\n妳輕聲回應：",
+    "choices": [
+     {
+      "text": "「想到不能跟木兔學長見面，我也很難受。」",
+      "targets": [
+       {
+        "id": "B",
+        "val": 2
+       }
+      ],
+      "feedback": "像是從妳的話中悟出了什麼，木兔點了點自己的唇，「果然是這樣嗎⋯⋯」\n\n很難得的，木兔陷入了沉思。\n\n但畢竟是木兔，這一段思考也沒花上太多時間。\n\n「有天我發現，打球時我喜歡有妳看著。」木兔的眼神飄忽，似乎正在回憶，「這幾天我發現，妳如果不在，我會去思考妳在哪裡、需不需要幫忙⋯⋯」\n\n接著，木兔點了點妳呆呆微啟的唇。"
+     },
+     {
+      "text": "「木兔學長的意思是⋯⋯之後還想見面嗎？」",
+      "targets": [
+       {
+        "id": "B",
+        "val": 0
+       }
+      ],
+      "feedback": "木兔花了一秒思考，就用力點頭，「嗯！還想跟森繼續見面！」\n\n「總會見到的。」說著這話的妳，比自己預期的還要強顏歡笑，「梟谷跟森然會有練習賽，之後也還會有合宿⋯⋯」\n\n「我三年級了喔。」木兔豎起三根手指，「不到一年後，我就會離開梟谷了，這樣能見到森的次數又更少了吧。」\n\n他說得對，妳心中一空，依然努力將嘴角向上扯，「埼玉跟東京也沒有那麼遠，想見面還是很方便啊！」"
+     }
+    ],
+    "join": "break",
+    "mergeNext": true
+   },
+   {
+    "scene": "第六天夜晚・走廊",
+    "text": "「嗯，想見妳。」木兔以有些無厘頭的肯定句接續，「今天、明天、後天、下禮拜、下個月、下下個月、明年⋯⋯我都會想見妳。」\n\n當妳仍在消化一個又一個時間指稱背後的情感，木兔拱身伸出脖子，近得幾乎要貼上妳的鼻尖。\n\n「森，我喜歡妳。」\n\n夜裡，他火炬般的目光卻堪比日光灼熱。\n\n妳能感受到木兔熾熱的鼻息，彷彿有情意隨之滲入妳的肌膚。\n\n他沿著皮膚紋路的方向，撫過妳的前額，接著指尖輕點妳顴骨的突起、妳的鼻頭，最後劃過妳的嘴角、從下巴尖端滑落。\n\n「如果之後不能見面了，我也會這樣好好記住妳的樣子。」木兔無比認真的模樣，又像在研究排球戰術，「但在那之前，我要讓妳知道我喜歡妳。」\n\n「欸？欸！那個、木兔學長⋯⋯」\n\n等一下、等一下，千璃泱！\n\n妳的內心忙著對自己失態大吼，以至於妳沒辦法組織任何回應木兔的言語。\n\n更出乎意料的是，木兔接下來重重嘆了一口氣。\n\n「出來啦，黑尾。」\n\n「黑尾學長？」妳驚慌失措的往木兔的視線方向看去。\n\n在木兔身後、體育館門框轉角處，黑尾高大的身影緩緩露出。\n\n木兔轉過身，雙手扠腰，「真是的，偷聽犯規喔。」\n\n「我才沒有偷聽！」黑尾氣急敗壞得面紅耳赤，「我只是剛好出來找千璃醬，想說尊重你們的空間而已！」\n\n「但你就是聽到了對吧？我剛才跟森說了，我喜歡她。」木兔拇指向後比了比，倒也顯得瀟灑。\n\n黑尾別開目光，沒有回應木兔，神情漸轉肅然，不知道的人還以為他在煩惱什麼難以突破的賽局。\n\n「抱歉，千璃醬、木兔，我不是有意打擾你們。」黑尾沉聲開口，「今晚我必須說出口的話，都說完了，我這就離開。」\n\n「你要去哪？食堂嗎？」木兔搭上黑尾的肩，「一起去啊。」\n\n黑尾露出意外的表情，但也只有兩秒，便轉為苦笑，「不愧是木兔。」\n\n「不愧是黑尾。」木兔對他露齒一笑。\n\n妳不清楚木兔這麼說的意涵，甚至也不確定黑尾的⋯⋯何況，此刻妳已無暇去揣測他們的思維。\n\n妳記得合宿第一天，真子半開玩笑問過妳喜歡哪個年紀的男生。\n\n妳忘記當時隨口回答了什麼，總之妳決計沒想到，此刻會和兩名學長陷在這個尷尬的局面。\n\n「千璃醬。」黑尾回頭看向妳，臉上掛著的那抹笑看似灑脫、實則決絕，「明天集訓結束，我會在蘋果肉桂奶油麵包販賣機那裡等妳。」\n\n「啊？黑尾！你好狡猾！」木兔氣呼呼的揮動手臂，「森！我⋯⋯我就在體育館原地等妳！如果妳訓練結束直接走掉，我就知道妳不想再見到我了。」\n\n「這什麼情緒勒索的發言啊？」\n\n「黑尾你才沒有資格說我！什麼青辣椒？」\n\n兩個人就這麼鬥嘴著，逕自往食堂走去。\n\n妳恍惚的看著他倆逐漸遠去的背影，但覺天旋地轉。\n\n在他們轉彎的那一瞬間，妳忽然有個衝動大喊——",
+    "choices": [
+     {
+      "text": "「黑尾學長——」",
+      "targets": [
+       {
+        "id": "K",
+        "val": 3
+       }
+      ],
+      "sets": {
+       "ch16Pick": "K"
+      },
+      "feedback": ""
+     },
+     {
+      "text": "「木兔學長——」",
+      "targets": [
+       {
+        "id": "B",
+        "val": 3
+       }
+      ],
+      "sets": {
+       "ch16Pick": "B"
+      },
+      "feedback": ""
+     }
+    ],
+    "join": "break",
+    "mergeNext": true
+   },
+   {
+    "scene": "第六天夜晚・走廊",
+    "text": "他沒有聽到，又或者他假裝沒聽到。\n\n黑尾鐵朗與木兔光太郎，一同消失在妳的視線中。\n\n明天，妳該赴誰的約？\n\n妳在原地呆站了良久，站到三館其他人都離開熄燈了，妳才終於得出答案。\n\n最終進駐妳心底的，是哪一名學長⋯⋯",
+    "choices": []
+   }
+  ]
+ }
+};
+
 // ── 把配樂表套到單人小節的各個段落（見 BGM_PLAN）──
 (function applyBgmToMultiSolo() {
-  ['ch11_solo', 'ch14_solo', 'ch15_solo'].forEach(id => {
+  ['ch11_solo', 'ch14_solo', 'ch15_solo', 'ch16_BK'].forEach(id => {
     const def = MULTI_SOLO[id];
     (def.common || []).forEach(c => c.steps.forEach(st => {
       const t = BGM_PLAN[id + '/common:' + c.after]; if (t) st.bgm = t;
@@ -5418,6 +5612,7 @@ const DEBUG_JUMP_TARGETS = [
   { id:'ch13',      label:'第十三章　女生宿舍' },
   { id:'ch14_solo',  label:'第十四章　特別之人（跳過的人依第十三章結算；直接跳入則四人都播）' },
   { id:'ch15_solo',  label:'第十五章　相約（跳過的人依第十四章結算；直接跳入則四人都播）' },
+  { id:'ch16_BK',    label:'第十六章　最後一夜（黑尾、木兔路線）' },
 ];
 
 function populateDebugJumpSelect() {
