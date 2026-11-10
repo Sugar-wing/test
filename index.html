@@ -3879,7 +3879,9 @@ async function handleMultiSoloChoice(e, multiSoloId, pos, choice) {
     area.innerHTML = '';
 
     const merged = curStep.mergeNext ? playlist[pos + 1] : null;
-    let chunk = (curStep.join === 'inline' ? '' : '\n\n') + choice.text + '\n\n' + (choice.feedback || '');
+    // 選項、回饋、接續正文之間各空一行；沒有回饋文字的題目（例如第十六章最後的指名題）就不要多空一段
+    let chunk = (curStep.join === 'inline' ? '' : '\n\n') + choice.text;
+    if (choice.feedback && choice.feedback.trim()) chunk += '\n\n' + choice.feedback;
     if (merged && merged.text) chunk += '\n\n' + merged.text;
     const span = document.createElement('span');
     span.className = 'inline-chunk';
